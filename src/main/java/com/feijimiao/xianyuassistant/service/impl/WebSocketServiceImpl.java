@@ -85,7 +85,13 @@ public class WebSocketServiceImpl implements WebSocketService {
                 log.error("Cookie中缺少unb字段: accountId={}", accountId);
                 throw new com.feijimiao.xianyuassistant.exception.CookieExpiredException("Cookie中缺少unb字段，Cookie可能已过期或无效");
             }
-            String deviceId = "web_" + unb;
+            // 使用持久化的设备ID（如果数据库中已有则使用，否则生成新的并保存）
+            String deviceId = accountService.getOrGenerateDeviceId(accountId, unb);
+            if (deviceId == null || deviceId.isEmpty()) {
+                log.error("获取或生成设备ID失败: accountId={}", accountId);
+                throw new RuntimeException("无法获取或生成设备ID");
+            }
+            log.info("使用设备ID: accountId={}, deviceId={}", accountId, deviceId);
             
             // 获取accessToken（参考Python的refresh_token）
             log.info("正在获取accessToken: accountId={}", accountId);
@@ -149,7 +155,12 @@ public class WebSocketServiceImpl implements WebSocketService {
                 log.error("【账号{}】Cookie中缺少unb字段", accountId);
                 throw new com.feijimiao.xianyuassistant.exception.CookieExpiredException("Cookie中缺少unb字段，Cookie可能已过期或无效");
             }
-            String deviceId = "web_" + unb;
+            // 使用持久化的设备ID
+            String deviceId = accountService.getOrGenerateDeviceId(accountId, unb);
+            if (deviceId == null || deviceId.isEmpty()) {
+                log.error("【账号{}】获取或生成设备ID失败", accountId);
+                throw new RuntimeException("无法获取或生成设备ID");
+            }
             log.info("【账号{}】设备ID={}", accountId, deviceId);
             
             log.info("【账号{}】准备调用通用连接方法（Token将在注册成功后保存）...", accountId);

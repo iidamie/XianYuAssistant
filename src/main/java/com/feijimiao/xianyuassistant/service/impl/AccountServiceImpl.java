@@ -539,4 +539,67 @@ public class AccountServiceImpl implements AccountService {
             return false;
         }
     }
+    
+    @Override
+    public String getOrGenerateDeviceId(Long accountId, String unb) {
+        try {
+            log.info("获取或生成设备ID: accountId={}, unb={}", accountId, unb);
+            
+            // 1. 查询账号
+            XianyuAccount account = accountMapper.selectById(accountId);
+            if (account == null) {
+                log.warn("账号不存在: accountId={}", accountId);
+                return null;
+            }
+            
+            // 2. 检查是否已有设备ID
+            String existingDeviceId = account.getDeviceId();
+            if (existingDeviceId != null && !existingDeviceId.isEmpty()) {
+                log.info("使用已有设备ID: accountId={}, deviceId={}", accountId, existingDeviceId);
+                return existingDeviceId;
+            }
+            
+            // 3. 生成新的设备ID
+            String newDeviceId = com.feijimiao.xianyuassistant.utils.XianyuDeviceUtils.generateDeviceId(unb);
+            log.info("生成新设备ID: accountId={}, unb={}, deviceId={}", accountId, unb, newDeviceId);
+            
+            // 4. 保存到数据库
+            account.setDeviceId(newDeviceId);
+            account.setUpdatedTime(getCurrentTimeString());
+            accountMapper.updateById(account);
+            log.info("设备ID已保存到数据库: accountId={}, deviceId={}", accountId, newDeviceId);
+            
+            return newDeviceId;
+            
+        } catch (Exception e) {
+            log.error("获取或生成设备ID失败: accountId={}, unb={}", accountId, unb, e);
+            return null;
+        }
+    }
+    
+    @Override
+    public boolean updateDeviceId(Long accountId, String deviceId) {
+        try {
+            log.info("更新设备ID: accountId={}, deviceId={}", accountId, deviceId);
+            
+            // 查询账号
+            XianyuAccount account = accountMapper.selectById(accountId);
+            if (account == null) {
+                log.warn("账号不存在: accountId={}", accountId);
+                return false;
+            }
+            
+            // 更新设备ID
+            account.setDeviceId(deviceId);
+            account.setUpdatedTime(getCurrentTimeString());
+            accountMapper.updateById(account);
+            
+            log.info("设备ID更新成功: accountId={}, deviceId={}", accountId, deviceId);
+            return true;
+            
+        } catch (Exception e) {
+            log.error("更新设备ID失败: accountId={}, deviceId={}", accountId, deviceId, e);
+            return false;
+        }
+    }
 }

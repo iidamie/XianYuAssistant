@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS xianyu_account (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     account_note VARCHAR(100),                    -- 闲鱼账号备注
     unb VARCHAR(100),                             -- UNB标识
+    device_id VARCHAR(100),                       -- 设备ID（UUID格式-用户ID，用于WebSocket连接）
     status TINYINT DEFAULT 1,                     -- 账号状态 1:正常 -1:需要手机号验证
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP,  -- 创建时间
     updated_time DATETIME DEFAULT CURRENT_TIMESTAMP   -- 更新时间

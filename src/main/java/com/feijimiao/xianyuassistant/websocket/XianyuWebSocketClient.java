@@ -354,10 +354,8 @@ public class XianyuWebSocketClient extends WebSocketClient {
             if (headers.containsKey("mid")) {
                 ackHeaders.put("mid", headers.get("mid"));
             } else {
-                // 生成mid: 随机数(0-999) + 时间戳(毫秒) + " 0"
-                int randomPart = (int) (Math.random() * 1000);
-                long timestamp = System.currentTimeMillis();
-                String mid = randomPart + String.valueOf(timestamp) + " 0";
+                // 生成mid
+                String mid = com.feijimiao.xianyuassistant.utils.XianyuDeviceUtils.generateMid();
                 ackHeaders.put("mid", mid);
             }
             
@@ -433,10 +431,7 @@ public class XianyuWebSocketClient extends WebSocketClient {
         if (isConnected) {
             try {
                 // 生成心跳消息（参考Python格式）
-                // mid格式: 随机数(0-999) + 时间戳(毫秒) + " 0"
-                int randomPart = (int) (Math.random() * 1000);
-                long timestamp = System.currentTimeMillis();
-                String mid = randomPart + String.valueOf(timestamp) + " 0";
+                String mid = com.feijimiao.xianyuassistant.utils.XianyuDeviceUtils.generateMid();
                 String heartbeat = String.format("{\"lwp\":\"/!\",\"headers\":{\"mid\":\"%s\"}}", mid);
                 send(heartbeat);
             } catch (Exception e) {
@@ -560,19 +555,15 @@ public class XianyuWebSocketClient extends WebSocketClient {
      * 参考Python的generate_mid方法
      */
     private String generateMid() {
-        int randomPart = (int) (Math.random() * 1000);
-        long timestamp = System.currentTimeMillis();
-        return randomPart + String.valueOf(timestamp) + " 0";
+        return com.feijimiao.xianyuassistant.utils.XianyuDeviceUtils.generateMid();
     }
     
     /**
      * 生成UUID
-     * 格式: 负数时间戳（去掉最后两位）
+     * 格式: -时间戳1
      * 参考Python的generate_uuid方法
      */
     private String generateUuid() {
-        long timestamp = System.currentTimeMillis();
-        long uuid = -(timestamp / 100);
-        return String.valueOf(uuid);
+        return com.feijimiao.xianyuassistant.utils.XianyuDeviceUtils.generateUuid();
     }
 }
