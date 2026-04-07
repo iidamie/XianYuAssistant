@@ -103,7 +103,7 @@ public class WebSocketTokenServiceImpl implements WebSocketTokenService {
             
             log.info("【账号{}】开始获取新的accessToken...", accountId);
             
-            // 1. 生成时间戳
+            // 1. 生成时间戳（参考Python: int(time.time()) * 1000）
             String timestamp = String.valueOf(System.currentTimeMillis());
             
             // 2. 解析Cookie获取_m_h5_tk token
@@ -114,13 +114,13 @@ public class WebSocketTokenServiceImpl implements WebSocketTokenService {
                 token = mh5tk.split("_")[0];
             }
             
-            // 3. 构建data参数
+            // 3. 构建data参数（参考Python格式）
             String dataVal = String.format("{\"appKey\":\"444e9908a51d1cb236a27862abc769c9\",\"deviceId\":\"%s\"}", deviceId);
             
             // 4. 生成签名
             String sign = XianyuSignUtils.generateSign(timestamp, token, dataVal);
             
-            // 5. 构建URL参数
+            // 5. 构建URL参数（参考Python的get_token方法）
             Map<String, String> params = new HashMap<>();
             params.put("jsv", "2.7.2");
             params.put("appKey", "34839810");
@@ -133,35 +133,30 @@ public class WebSocketTokenServiceImpl implements WebSocketTokenService {
             params.put("timeout", "20000");
             params.put("api", "mtop.taobao.idlemessage.pc.login.token");
             params.put("sessionOption", "AutoLoginOnly");
-            params.put("dangerouslySetWindvaneParams", "%5Bobject%20Object%5D");
-            params.put("smToken", "token");
-            params.put("queryToken", "sm");
-            params.put("sm", "sm");
             params.put("spm_cnt", "a21ybx.im.0.0");
-            params.put("spm_pre", "a21ybx.home.sidebar.1.4c053da6vYwnmf");
-            params.put("log_id", "4c053da6vYwnmf");
+            params.put("spm_pre", "a21ybx.item.want.1.14ad3da6ALVq3n");
+            params.put("log_id", "14ad3da6ALVq3n");
             
             // 6. 构建请求体
             Map<String, String> data = new HashMap<>();
             data.put("data", dataVal);
             
-            // 7. 构建请求头
+            // 7. 构建请求头（参考Python的get_token方法）
             Map<String, String> headers = new HashMap<>();
-            headers.put("accept", "application/json");
-            headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
-            headers.put("cache-control", "no-cache");
-            headers.put("content-type", "application/x-www-form-urlencoded");
-            headers.put("pragma", "no-cache");
-            headers.put("priority", "u=1, i");
-            headers.put("sec-ch-ua", "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"");
-            headers.put("sec-ch-ua-mobile", "?0");
+            headers.put("Host", "h5api.m.goofish.com");
             headers.put("sec-ch-ua-platform", "\"Windows\"");
-            headers.put("sec-fetch-dest", "empty");
-            headers.put("sec-fetch-mode", "cors");
-            headers.put("sec-fetch-site", "same-site");
-            headers.put("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36");
-            headers.put("referer", "https://www.goofish.com/");
+            headers.put("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36");
+            headers.put("accept", "application/json");
+            headers.put("sec-ch-ua", "\"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\"");
+            headers.put("content-type", "application/x-www-form-urlencoded");
+            headers.put("sec-ch-ua-mobile", "?0");
             headers.put("origin", "https://www.goofish.com");
+            headers.put("sec-fetch-site", "same-site");
+            headers.put("sec-fetch-mode", "cors");
+            headers.put("sec-fetch-dest", "empty");
+            headers.put("referer", "https://www.goofish.com/");
+            headers.put("accept-language", "en,zh-CN;q=0.9,zh;q=0.8,zh-TW;q=0.7,ja;q=0.6");
+            headers.put("priority", "u=1, i");
             headers.put("cookie", cookiesStr);
             
             // 8. 构建完整URL（带查询参数）

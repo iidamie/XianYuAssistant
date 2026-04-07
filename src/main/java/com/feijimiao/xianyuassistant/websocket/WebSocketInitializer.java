@@ -25,9 +25,7 @@ public class WebSocketInitializer {
      * 格式: 随机数(0-999) + 时间戳(毫秒) + " 0"
      */
     private String generateMid() {
-        int randomPart = (int) (Math.random() * 1000);
-        long timestamp = System.currentTimeMillis();
-        return randomPart + String.valueOf(timestamp) + " 0";
+        return com.feijimiao.xianyuassistant.utils.XianyuDeviceUtils.generateMid();
     }
     
     /**
@@ -92,9 +90,9 @@ public class WebSocketInitializer {
             bodyItem.put("channel", "sync");
             bodyItem.put("topic", "sync");
             bodyItem.put("highPts", 0);
-            // 重要：pts设置为0以接收所有消息，或者使用当前时间戳*1000
-            // 参考Python: pts = current_time * 1000 (毫秒时间戳 * 1000)
-            bodyItem.put("pts", 0L);  // 先尝试设置为0，接收所有消息
+            // 重要：pts必须设置为当前时间戳*1000（参考Python实现）
+            // Python: pts = current_time * 1000 (毫秒时间戳 * 1000)
+            bodyItem.put("pts", currentTime * 1000);
             bodyItem.put("seq", 0);
             bodyItem.put("timestamp", currentTime);
             
@@ -105,7 +103,7 @@ public class WebSocketInitializer {
             
             log.info("【账号{}】已发送同步状态消息", accountId);
             log.info("【账号{}】同步状态消息内容: {}", accountId, jsonMessage);
-            log.info("【账号{}】pts设置为0，将接收所有消息", accountId);
+            log.info("【账号{}】pts设置为{} (currentTime * 1000)", accountId, currentTime * 1000);
             
         } catch (Exception e) {
             log.error("【账号{}】发送同步状态消息失败", accountId, e);
