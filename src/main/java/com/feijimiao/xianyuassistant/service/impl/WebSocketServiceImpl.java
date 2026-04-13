@@ -126,7 +126,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             
             // 获取accessToken（参考Python的refresh_token）
             log.info("正在获取accessToken: accountId={}", accountId);
-            String accessToken = tokenService.getAccessToken(accountId, cookieStr, deviceId);
+            String accessToken = tokenService.getAccessToken(accountId);
             if (accessToken == null || accessToken.isEmpty()) {
                 log.error("获取accessToken失败: accountId={}", accountId);
                 log.error("无法继续WebSocket连接，请检查Cookie是否有效");
