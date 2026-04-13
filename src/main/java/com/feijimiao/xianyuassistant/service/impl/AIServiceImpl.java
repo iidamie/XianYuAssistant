@@ -57,7 +57,7 @@ public class AIServiceImpl implements AIService {
         // 3. 构建带上下文的 prompt
         String ragPrompt = String.format("""
                 你是一个智能助手，请根据以下内部参考资料回答用户问题。
-                如果参考内容中没有相关信息，请根据自身知识回答,但是不要乱回答。
+                如果参考内容中没有相关信息，请根据自身知识回答,但是不要乱回答,返回json格式{"goodName":"商品名称","":""}
             
                 参考资料：
                 %s
