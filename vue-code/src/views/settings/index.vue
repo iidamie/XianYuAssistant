@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCurrentUser, changePassword } from '@/api/system'
 import { logout } from '@/api/auth'
+import { getSetting, saveSetting } from '@/api/setting'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { clearAuthToken } from '@/utils/request'
 
@@ -25,6 +26,13 @@ const showConfirmPassword = ref(false)
 // 退出登录
 const loggingOut = ref(false)
 
+// 系统提示词
+const SYS_PROMPT_KEY = 'sys_prompt'
+const DEFAULT_SYS_PROMPT = '你是一个闲鱼卖家，你叫肥极喵，不要回复的像AI，简短回答\n参考相关信息回答,不要乱回答,不知道就换不同语气回复提示用户详细点询问'
+const sysPromptValue = ref('')
+const sysPromptSaving = ref(false)
+const sysPromptLoaded = ref(false)
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -37,6 +45,17 @@ onMounted(async () => {
     console.error('获取用户信息失败:', e)
   } finally {
     loading.value = false
+  }
+
+  // 加载系统提示词配置
+  try {
+    const res = await getSetting({ settingKey: SYS_PROMPT_KEY })
+    if (res.code === 200 && res.data) {
+      sysPromptValue.value = res.data.settingValue || ''
+      sysPromptLoaded.value = true
+    }
+  } catch (e) {
+    console.error('获取系统提示词配置失败:', e)
   }
 })
 
@@ -102,6 +121,31 @@ async function handleLogout() {
     // 用户取消
   }
 }
+
+async function handleSaveSysPrompt() {
+  if (!sysPromptValue.value.trim()) {
+    ElMessage.warning('系统提示词不能为空')
+    return
+  }
+  sysPromptSaving.value = true
+  try {
+    const res = await saveSetting({
+      settingKey: SYS_PROMPT_KEY,
+      settingValue: sysPromptValue.value,
+      settingDesc: 'AI智能回复的系统提示词'
+    })
+    if (res.code === 200) {
+      ElMessage.success('系统提示词保存成功')
+      sysPromptLoaded.value = true
+    }
+  } finally {
+    sysPromptSaving.value = false
+  }
+}
+
+function handleResetSysPrompt() {
+  sysPromptValue.value = DEFAULT_SYS_PROMPT
+}
 </script>
 
 <template>
@@ -122,6 +166,36 @@ async function handleLogout() {
         <div class="s__info-row">
           <span class="s__info-label">最后登录时间</span>
           <span class="s__info-value">{{ lastLoginTime || '-' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="s__card">
+      <div class="s__card-title">系统提示词</div>
+      <p class="s__prompt-desc">配置 AI 智能回复的系统提示词，用于设定 AI 的角色和行为规则</p>
+      <div class="s__prompt-form">
+        <textarea
+          v-model="sysPromptValue"
+          class="s__textarea"
+          placeholder="请输入系统提示词"
+          :disabled="sysPromptSaving"
+          rows="5"
+        ></textarea>
+        <div class="s__prompt-actions">
+          <button
+            class="s__btn s__btn--secondary"
+            :disabled="sysPromptSaving"
+            @click="handleResetSysPrompt"
+          >
+            恢复默认
+          </button>
+          <button
+            class="s__btn s__btn--primary"
+            :disabled="sysPromptSaving"
+            @click="handleSaveSysPrompt"
+          >
+            {{ sysPromptSaving ? '保存中...' : '保存' }}
+          </button>
         </div>
       </div>
     </div>
@@ -469,6 +543,60 @@ async function handleLogout() {
   font-size: 13px;
   color: var(--d-text-secondary);
   margin: 0;
+}
+
+.s__logout-content .s__btn--danger {
+  align-self: flex-start;
+  min-width: auto;
+}
+
+/* Sys Prompt */
+.s__prompt-desc {
+  font-size: 13px;
+  color: var(--d-text-secondary);
+  margin: 0 0 var(--d-space-3) 0;
+}
+
+.s__prompt-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--d-space-3);
+}
+
+.s__textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--d-text-primary);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--d-border-strong);
+  border-radius: var(--d-radius-sm);
+  outline: none;
+  transition: all var(--d-transition);
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.s__textarea:focus {
+  border-color: var(--d-text-primary);
+  background: #fff;
+}
+
+.s__textarea::placeholder {
+  color: var(--d-text-tertiary);
+}
+
+.s__textarea:disabled {
+  opacity: 0.5;
+}
+
+.s__prompt-actions {
+  display: flex;
+  gap: var(--d-space-3);
+  justify-content: flex-end;
 }
 
 /* Responsive */
