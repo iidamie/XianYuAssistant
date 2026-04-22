@@ -38,3 +38,5 @@ build/
 *.db
 *.db-journal
 /logs/
+/nul
+/vue-code/nul
