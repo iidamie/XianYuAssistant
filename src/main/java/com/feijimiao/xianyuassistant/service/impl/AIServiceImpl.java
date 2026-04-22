@@ -1,6 +1,7 @@
 package com.feijimiao.xianyuassistant.service.impl;
 
 import com.feijimiao.xianyuassistant.service.AIService;
+import com.feijimiao.xianyuassistant.service.SysSettingService;
 import com.feijimiao.xianyuassistant.service.bo.RAGDataRespBO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -32,12 +33,21 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = "ai.enabled", havingValue = "true")
 public class AIServiceImpl implements AIService {
 
+    /** 系统提示词配置键 */
+    private static final String SYS_PROMPT_KEY = "sys_prompt";
+
+    /** 默认系统提示词 */
+    private static final String DEFAULT_SYS_PROMPT = "你是一个闲鱼卖家，你叫肥极喵，不要回复的像AI，简短回答\n参考相关信息回答,不要乱回答,不知道就换不同语气回复提示用户详细点询问";
+
     @Autowired
     @Qualifier("XianYuChatClient")
     ChatClient chatClient;
 
     @Autowired
     private VectorStore vectorStore;
+
+    @Autowired
+    private SysSettingService sysSettingService;
 
     @Override
     public Flux<String> chatByRAG(String prompt,String goodsId) {
@@ -62,26 +72,34 @@ public class AIServiceImpl implements AIService {
                 .map(Document::getText)
                 .collect(Collectors.joining("\n---\n"));
 
-        // 3. 构建带上下文的 prompt
-        String ragPrompt = String.format("""
-                你是一个闲鱼卖家，你叫肥极喵，不要回复的像AI，简短回答
-                参考相关信息回答,不要乱回答,不知道就换不同语气回复提示用户详细点询问
-            
+        // 3. 从系统配置中获取系统提示词
+        String sysPrompt = sysSettingService.getSettingValue(SYS_PROMPT_KEY);
+        if (sysPrompt == null || sysPrompt.trim().isEmpty()) {
+            sysPrompt = DEFAULT_SYS_PROMPT;
+            log.info("[AI Chat] 使用默认系统提示词");
+        } else {
+            log.info("[AI Chat] 使用自定义系统提示词");
+        }
+
+        // 4. 构建用户消息（参考资料 + 用户问题）
+        String userMessage = String.format("""
                 参考资料：
                 %s
-               
+
                 用户问题：%s
                 """, context, prompt);
 
         long llmStart = System.currentTimeMillis();
         log.info("[AI Chat] 准备调用LLM, 总预处理耗时: {}ms", llmStart - startTime);
         log.info("[AI Chat] LLM请求参数 - model: deepseek-v3, temperature: 0.7, goodsId: {}", goodsId);
-        log.info("[AI Chat] LLM完整prompt:\n{}", ragPrompt);
+        log.info("[AI Chat] 系统提示词:\n{}", sysPrompt);
+        log.info("[AI Chat] 用户消息:\n{}", userMessage);
 
-        // 4. 请求大模型，流式返回
+        // 5. 请求大模型，流式返回
         AtomicBoolean firstTokenLogged = new AtomicBoolean(false);
         return chatClient.prompt()
-                .user(ragPrompt)
+                .system(sysPrompt)
+                .user(userMessage)
                 .stream()
                 .content()
                 .doOnNext(token -> {

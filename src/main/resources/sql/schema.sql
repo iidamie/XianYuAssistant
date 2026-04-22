@@ -400,3 +400,29 @@ CREATE INDEX IF NOT EXISTS idx_operation_log_type ON xianyu_operation_log(operat
 CREATE INDEX IF NOT EXISTS idx_operation_log_status ON xianyu_operation_log(operation_status);
 CREATE INDEX IF NOT EXISTS idx_operation_log_create_time ON xianyu_operation_log(create_time);
 
+-- 系统配置表
+CREATE TABLE IF NOT EXISTS xianyu_sys_setting (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    setting_key VARCHAR(100) NOT NULL UNIQUE,              -- 配置键
+    setting_value TEXT,                                     -- 配置值
+    setting_desc VARCHAR(500),                              -- 配置描述
+    created_time DATETIME DEFAULT (datetime('now', 'localtime')),  -- 创建时间
+    updated_time DATETIME DEFAULT (datetime('now', 'localtime'))   -- 更新时间
+);
+
+-- 创建系统配置表索引
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sys_setting_key ON xianyu_sys_setting(setting_key);
+
+-- 创建系统配置表更新时间触发器
+CREATE TRIGGER IF NOT EXISTS update_xianyu_sys_setting_time
+AFTER UPDATE ON xianyu_sys_setting
+BEGIN
+    UPDATE xianyu_sys_setting SET updated_time = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END
+$
+
+-- 初始化系统配置数据
+INSERT OR IGNORE INTO xianyu_sys_setting (setting_key, setting_value, setting_desc)
+VALUES ('sys_prompt', '你是一个闲鱼卖家，你叫肥极喵，不要回复的像AI，简短回答
+参考相关信息回答,不要乱回答,不知道就换不同语气回复提示用户详细点询问', 'AI智能回复的系统提示词');
+
