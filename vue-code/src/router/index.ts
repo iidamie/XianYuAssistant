@@ -63,6 +63,12 @@ const router = createRouter({
       meta: { title: '自动发货', icon: '🤖' }
     },
     {
+      path: '/kami-config',
+      name: 'kami-config',
+      component: () => import('@/views/kami-config/index.vue'),
+      meta: { title: '卡密配置', icon: '🔑' }
+    },
+    {
       path: '/auto-reply',
       name: 'auto-reply',
       component: () => import('@/views/auto-reply/index.vue'),

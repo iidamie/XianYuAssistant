@@ -656,8 +656,7 @@ onBeforeUnmount(() => {
 /* ============================================================
    Design Tokens
    ============================================================ */
-.detail-panel,
-.mobile-overlay {
+.detail-panel {
   --c-bg: transparent;
   --c-surface: #ffffff;
   --c-border: rgba(0, 0, 0, 0.06);
@@ -1221,7 +1220,7 @@ onBeforeUnmount(() => {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--c-bg);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
 }

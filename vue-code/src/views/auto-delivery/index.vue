@@ -63,6 +63,8 @@ const {
   apiHintParamsJson,
   confirmShipmentUrl,
   confirmShipmentParamsJson,
+  kamiConfigOptions,
+  selectedKamiConfigId,
   copyApiUrl,
   copyApiParams,
   copyConfirmShipmentUrl,
@@ -231,16 +233,24 @@ const {
             <div class="ad__tab-group">
               <button
                 class="ad__tab-btn"
-                :class="{ 'ad__tab-btn--active': configForm.type === 1 }"
-                @click="configForm.type = 1"
+                :class="{ 'ad__tab-btn--active': configForm.deliveryMode === 1 }"
+                @click="configForm.deliveryMode = 1"
               >
                 <IconText />
-                自动发货
+                文本发货
               </button>
               <button
                 class="ad__tab-btn"
-                :class="{ 'ad__tab-btn--active': configForm.type === 2 }"
-                @click="configForm.type = 2"
+                :class="{ 'ad__tab-btn--active': configForm.deliveryMode === 2 }"
+                @click="configForm.deliveryMode = 2"
+              >
+                🔑
+                卡密发货
+              </button>
+              <button
+                class="ad__tab-btn"
+                :class="{ 'ad__tab-btn--active': configForm.deliveryMode === 3 }"
+                @click="configForm.deliveryMode = 3"
               >
                 <IconRobot />
                 自定义发货
@@ -249,7 +259,7 @@ const {
           </div>
 
           <!-- ====== 自动发货视图 ====== -->
-          <template v-if="configForm.type === 1">
+          <template v-if="configForm.deliveryMode === 1">
             <!-- Delivery Toggle Section -->
             <div class="ad__config-section">
               <div class="ad__config-section-title">发货设置</div>
@@ -324,8 +334,89 @@ const {
             </div>
           </template>
 
+          <!-- ====== 卡密发货视图 ====== -->
+          <template v-if="configForm.deliveryMode === 2">
+            <div class="ad__config-section">
+              <div class="ad__config-section-title">发货设置</div>
+
+              <div class="ad__toggle-row">
+                <div class="ad__toggle-info">
+                  <div class="ad__toggle-label">自动发货</div>
+                  <div class="ad__toggle-hint">买家下单后自动发送卡密</div>
+                </div>
+                <label class="ad__switch">
+                  <input
+                    type="checkbox"
+                    :checked="selectedGoods.xianyuAutoDeliveryOn === 1"
+                    @change="toggleAutoDelivery(($event.target as HTMLInputElement).checked)"
+                  />
+                  <span class="ad__switch-track"></span>
+                  <span class="ad__switch-thumb"></span>
+                </label>
+              </div>
+
+              <div class="ad__toggle-row">
+                <div class="ad__toggle-info">
+                  <div class="ad__toggle-label">自动确认发货</div>
+                  <div class="ad__toggle-hint">
+                    {{ selectedGoods.xianyuAutoDeliveryOn === 1
+                      ? '卡密发送成功后自动确认已发货'
+                      : '需先开启自动发货' }}
+                  </div>
+                </div>
+                <label class="ad__switch">
+                  <input
+                    type="checkbox"
+                    :checked="configForm.autoConfirmShipment === 1"
+                    :disabled="selectedGoods.xianyuAutoDeliveryOn !== 1"
+                    @change="configForm.autoConfirmShipment = ($event.target as HTMLInputElement).checked ? 1 : 0"
+                  />
+                  <span class="ad__switch-track"></span>
+                  <span class="ad__switch-thumb"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="ad__config-section">
+              <div class="ad__config-section-title">卡密配置绑定</div>
+              <div style="margin-bottom: 12px;">
+                <el-select
+                  v-model="selectedKamiConfigId"
+                  placeholder="请选择卡密配置"
+                  clearable
+                  style="width: 100%;"
+                >
+                  <el-option
+                    v-for="opt in kamiConfigOptions"
+                    :key="opt.id"
+                    :label="`${opt.aliasName || `配置#${opt.id}`} (可用 ${opt.availableCount} / 总 ${opt.totalCount})`"
+                    :value="String(opt.id)"
+                  />
+                </el-select>
+                <div v-if="kamiConfigOptions.length === 0" style="color: #86868b; font-size: 13px; margin-top: 8px;">
+                  暂无卡密配置，请先在「卡密配置」页面创建
+                </div>
+              </div>
+
+              <div class="ad__save-row">
+                <button
+                  class="btn btn--primary"
+                  :class="{ 'btn--loading': saving }"
+                  :disabled="saving"
+                  @click="saveConfig"
+                >
+                  <IconCheck />
+                  保存配置
+                </button>
+                <span v-if="currentConfig" class="ad__save-time">
+                  更新于 {{ formatTime(currentConfig.updateTime) }}
+                </span>
+              </div>
+            </div>
+          </template>
+
           <!-- ====== 自定义发货视图 ====== -->
-          <template v-if="configForm.type === 2">
+          <template v-if="configForm.deliveryMode === 3">
             <!-- API Hint Panel -->
             <div class="ad__config-section">
               <div class="ad__api-hint">

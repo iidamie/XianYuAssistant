@@ -43,6 +43,9 @@ const onSelect = (index: string) => {
     <el-menu-item index="/auto-delivery">
       <span>🤖 自动发货</span>
     </el-menu-item>
+    <el-menu-item index="/kami-config">
+      <span>🔑 卡密配置</span>
+    </el-menu-item>
     <el-menu-item index="/auto-reply">
       <span>💭 自动回复</span>
     </el-menu-item>

@@ -442,7 +442,7 @@ public class ItemServiceImpl implements ItemService {
                     autoDeliveryService.getAutoDeliveryConfig(item.getXianyuAccountId(), item.getXyGoodId());
             
             if (deliveryConfig != null) {
-                itemWithConfig.setAutoDeliveryType(deliveryConfig.getType());
+                itemWithConfig.setAutoDeliveryType(deliveryConfig.getDeliveryMode());
                 itemWithConfig.setAutoDeliveryContent(deliveryConfig.getAutoDeliveryContent());
             }
         } else {
