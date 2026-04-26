@@ -58,7 +58,7 @@ const loadAccounts = async () => {
     if (res.code === 200 && res.data) {
       accounts.value = res.data.accounts || []
       if (accounts.value.length > 0 && !selectedAccountId.value) {
-        selectedAccountId.value = accounts.value[0].id
+        selectedAccountId.value = accounts.value[0]!.id
       }
     }
   } catch (e) {
@@ -74,7 +74,7 @@ const loadKamiConfigs = async () => {
     if (res.code === 200) {
       kamiConfigs.value = res.data || []
       if (kamiConfigs.value.length > 0 && !selectedConfigId.value) {
-        selectedConfigId.value = kamiConfigs.value[0].id
+        selectedConfigId.value = kamiConfigs.value[0]!.id
         loadKamiItems()
       } else if (kamiConfigs.value.length === 0) {
         selectedConfigId.value = null
@@ -288,7 +288,7 @@ onMounted(() => {
 <template>
   <div class="kami-page">
     <header class="kami-page__header">
-      <h1 class="kami-page__title">🔑 卡密配置</h1>
+      <h1 class="kami-page__title">🔑 卡密仓库</h1>
       <div class="kami-page__actions">
         <el-select
           v-model="selectedAccountId"

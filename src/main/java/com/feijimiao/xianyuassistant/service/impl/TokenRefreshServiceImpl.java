@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Token刷新服务实现
@@ -65,6 +66,14 @@ public class TokenRefreshServiceImpl implements TokenRefreshService {
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
+
+    private volatile long nextCookieKeepAliveTime = 0;
+
+    private void scheduleNextCookieKeepAlive() {
+        long delayMinutes = 120 + ThreadLocalRandom.current().nextLong(61);
+        nextCookieKeepAliveTime = System.currentTimeMillis() + delayMinutes * 60 * 1000;
+        log.info("📅 下次Cookie保活检查将在 {} 分钟后执行", delayMinutes);
+    }
     
     /**
      * 闲鱼API地址（用于刷新_m_h5_tk）
@@ -398,8 +407,12 @@ public class TokenRefreshServiceImpl implements TokenRefreshService {
      * 3. 主要依赖token刷新失败时的自动重试机制来触发hasLogin
      * 4. 添加随机间隔（5-15秒），避免多账号同时请求被识别为机器人
      */
-    @Scheduled(fixedDelay = 180 * 60 * 1000, initialDelay = 90 * 60 * 1000)
+    @Scheduled(fixedDelay = 60 * 1000, initialDelay = 90 * 60 * 1000)
     public void scheduledCookieKeepAlive() {
+        if (System.currentTimeMillis() < nextCookieKeepAliveTime) {
+            return;
+        }
+        scheduleNextCookieKeepAlive();
         try {
             log.info("🔄 开始定期Cookie保活检查...");
 

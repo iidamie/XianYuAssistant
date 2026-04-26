@@ -452,34 +452,43 @@ public class WebSocketTokenServiceImpl implements WebSocketTokenService {
      */
     private String handleTokenFailure(Long accountId, int retryCount, String response, String reason) {
 
-        boolean isCookieExpired = response != null && (
+        boolean isSessionExpired = response != null && (
             response.contains("FAIL_SYS_SESSION_EXPIRED") ||
             response.contains("FAIL_SYS_TOKEN_EXOIRED") ||
             response.contains("FAIL_SYS_TOKEN_EXPIRED") ||
             response.contains("令牌过期"));
 
-        if (isCookieExpired) {
-            log.warn("【账号{}】检测到令牌过期/Cookie过期", accountId);
+        if (isSessionExpired) {
+            log.warn("【账号{}】检测到Session/令牌过期，直接标记Cookie过期，停止重试避免触发滑块验证", accountId);
+            updateCookieStatus(accountId, 2);
+
+            operationLogService.log(accountId,
+                com.feijimiao.xianyuassistant.constants.OperationConstants.Type.REFRESH,
+                com.feijimiao.xianyuassistant.constants.OperationConstants.Module.TOKEN,
+                "Session过期，Cookie已标记为过期，需手动更新Cookie",
+                com.feijimiao.xianyuassistant.constants.OperationConstants.Status.FAIL,
+                com.feijimiao.xianyuassistant.constants.OperationConstants.TargetType.TOKEN,
+                String.valueOf(accountId),
+                null, null, "Session过期", null);
+
+            throw new com.feijimiao.xianyuassistant.exception.CookieExpiredException(
+                "账号" + accountId + " Session过期，Cookie已失效，请手动更新Cookie");
         }
 
-        // 参考Python: retry_count < 2 时直接重试（此时Cookie已从Set-Cookie更新）
         if (retryCount < MAX_TOKEN_RETRY_COUNT) {
             log.warn("【账号{}】Token获取失败({})，准备重试... (重试次数: {}/{})",
                     accountId, reason, retryCount + 1, MAX_TOKEN_RETRY_COUNT);
 
             try {
-                // 随机间隔500-1500ms，避免固定间隔被识别为机器人
                 long randomInterval = RETRY_INTERVAL_BASE + new java.util.Random().nextLong(RETRY_INTERVAL_RANDOM);
                 Thread.sleep(randomInterval);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
 
-            // 【关键】重试时从数据库重新读取最新Cookie（可能已被Set-Cookie更新）
             return getAccessTokenWithRetry(accountId, retryCount + 1);
         }
 
-        // 参考Python: retry_count >= 2 时，调用hasLogin刷新Cookie后重试
         log.warn("【账号{}】Token获取重试已达上限，尝试通过hasLogin刷新Cookie...", accountId);
         return refreshTokenViaHasLogin(accountId, 0);
     }
