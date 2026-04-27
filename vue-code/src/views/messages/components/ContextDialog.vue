@@ -3,10 +3,13 @@ import { ref, watch, nextTick, computed, onMounted, onUnmounted } from 'vue'
 import { getContextMessages } from '@/api/message'
 import type { ChatMessage } from '@/api/message'
 import { sendMessage as sendMessageApi } from '@/api/message'
+import { sendImageMessage as sendImageMessageApi } from '@/api/image'
 import { ElMessage } from 'element-plus'
 import IconUser from '@/components/icons/IconUser.vue'
 import IconEmpty from '@/components/icons/IconEmpty.vue'
 import IconSend from '@/components/icons/IconSend.vue'
+import IconImage from '@/components/icons/IconImage.vue'
+import ImageUploader from '@/components/ImageUploader.vue'
 
 interface Props {
   visible: boolean
@@ -27,6 +30,8 @@ const loading = ref(false)
 const messages = ref<ChatMessage[]>([])
 const inputText = ref('')
 const sending = ref(false)
+const inputImageUrl = ref('')
+const showImageUploader = ref(false)
 const messageListRef = ref<HTMLElement | null>(null)
 const hasMore = ref(true)
 const loadingMore = ref(false)
@@ -163,8 +168,8 @@ const getMessageType = (msg: ChatMessage) => {
 }
 
 const handleSend = async () => {
-  if (!inputText.value.trim()) {
-    ElMessage.warning('请输入消息内容')
+  if (!inputText.value.trim() && !inputImageUrl.value.trim()) {
+    ElMessage.warning('请输入消息内容或上传图片')
     return
   }
   
@@ -178,16 +183,31 @@ const handleSend = async () => {
     const cid = props.sid.replace('@goofish', '')
     const toId = props.senderUserId.replace('@goofish', '')
     
-    await sendMessageApi({
-      xianyuAccountId: props.xianyuAccountId,
-      cid,
-      toId,
-      text: inputText.value.trim(),
-      xyGoodsId: props.xyGoodsId
-    })
+    if (inputImageUrl.value.trim()) {
+      await sendImageMessageApi({
+        xianyuAccountId: props.xianyuAccountId,
+        cid,
+        toId,
+        imageUrl: inputImageUrl.value.trim(),
+        width: 800,
+        height: 800
+      })
+    }
+    
+    if (inputText.value.trim()) {
+      await sendMessageApi({
+        xianyuAccountId: props.xianyuAccountId,
+        cid,
+        toId,
+        text: inputText.value.trim(),
+        xyGoodsId: props.xyGoodsId
+      })
+    }
     
     ElMessage.success('发送成功')
     inputText.value = ''
+    inputImageUrl.value = ''
+    showImageUploader.value = false
     await loadContext()
   } catch (error: any) {
     ElMessage.error(error.message || '发送失败')
@@ -263,21 +283,38 @@ const handleSend = async () => {
       </div>
       
       <div class="context-input">
-        <el-input
-          v-model="inputText"
-          type="textarea"
-          :rows="2"
-          placeholder="输入消息内容，Ctrl+Enter发送"
-          @keydown.enter.ctrl="handleSend"
-        />
-        <el-button
-          type="primary"
-          :loading="sending"
-          @click="handleSend"
-        >
-          <IconSend />
-          <span>发送</span>
-        </el-button>
+        <div class="context-input__left">
+          <ImageUploader
+            v-if="showImageUploader && xianyuAccountId"
+            :account-id="xianyuAccountId"
+            v-model="inputImageUrl"
+            class="context-input__uploader"
+          />
+          <el-input
+            v-model="inputText"
+            type="textarea"
+            :rows="2"
+            placeholder="输入消息内容，Ctrl+Enter发送"
+            @keydown.enter.ctrl="handleSend"
+          />
+        </div>
+        <div class="context-input__actions">
+          <button
+            class="context-input__img-btn"
+            :class="{ 'context-input__img-btn--active': showImageUploader || inputImageUrl }"
+            @click="showImageUploader = !showImageUploader"
+          >
+            <IconImage />
+          </button>
+          <el-button
+            type="primary"
+            :loading="sending"
+            @click="handleSend"
+          >
+            <IconSend />
+            <span>发送</span>
+          </el-button>
+        </div>
       </div>
     </div>
   </el-dialog>
@@ -485,6 +522,55 @@ const handleSend = async () => {
   align-items: flex-end;
 }
 
+.context-input__left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.context-input__uploader {
+  width: 100%;
+}
+
+.context-input__actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.context-input__img-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #d4d4d4;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #666;
+}
+
+.context-input__img-btn:hover {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}
+
+.context-input__img-btn--active {
+  border-color: #34c759;
+  color: #34c759;
+  background: rgba(52, 199, 89, 0.06);
+}
+
+.context-input__img-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 .context-input :deep(.el-textarea) {
   flex: 1;
 }
@@ -575,6 +661,15 @@ const handleSend = async () => {
   
   .context-input {
     gap: 8px;
+  }
+  
+  .context-input__actions {
+    gap: 6px;
+  }
+  
+  .context-input__img-btn {
+    width: 36px;
+    height: 36px;
   }
   
   .context-input :deep(.el-textarea__inner) {

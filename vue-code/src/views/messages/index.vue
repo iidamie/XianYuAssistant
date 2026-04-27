@@ -13,6 +13,7 @@ import IconImage from '@/components/icons/IconImage.vue'
 
 import GoodsSidebar from './components/GoodsSidebar.vue'
 import MessageList from './components/MessageList.vue'
+import ImageUploader from '@/components/ImageUploader.vue'
 
 const {
   loading,
@@ -33,6 +34,7 @@ const {
   quickReplyMessage,
   quickReplySending,
   currentReplyMessage,
+  quickReplyImage,
   isMobile,
   mobileView,
   selectedGoodsForMobile,
@@ -401,6 +403,12 @@ const checkScreenSize = () => {
               placeholder="请输入回复内容..."
               maxlength="500"
             ></textarea>
+            <div class="messages__reply-image">
+              <ImageUploader
+                :account-id="selectedAccountId || 0"
+                v-model="quickReplyImage"
+              />
+            </div>
           </div>
           <div class="messages__dialog-footer">
             <button class="btn btn--secondary" @click="quickReplyVisible = false">取消</button>

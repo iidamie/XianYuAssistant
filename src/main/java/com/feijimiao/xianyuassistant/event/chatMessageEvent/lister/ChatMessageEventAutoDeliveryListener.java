@@ -260,6 +260,18 @@ public class ChatMessageEventAutoDeliveryListener {
             String cid = sId.replace("@goofish", "");
             String toId = cid;
             
+            boolean imageSuccess = true;
+            String imageUrl = deliveryConfig.getAutoDeliveryImageUrl();
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                HumanLikeDelayUtils.thinkingDelay();
+                imageSuccess = webSocketService.sendImageMessage(accountId, cid, toId, imageUrl.trim(), 800, 800);
+                if (imageSuccess) {
+                    log.info("【账号{}】自动发货图片发送成功: xyGoodsId={}", accountId, xyGoodsId);
+                } else {
+                    log.warn("【账号{}】自动发货图片发送失败: xyGoodsId={}", accountId, xyGoodsId);
+                }
+            }
+            
             boolean success = webSocketService.sendMessage(accountId, cid, toId, content);
             
             if (success) {

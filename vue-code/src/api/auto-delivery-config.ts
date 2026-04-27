@@ -11,6 +11,7 @@ export interface AutoDeliveryConfig {
   autoDeliveryContent: string;
   kamiConfigIds?: string; // 卡密发货绑定的配置ID列表（逗号分隔）
   kamiDeliveryTemplate?: string; // 卡密发货文案模板，使用{kmKey}占位符
+  autoDeliveryImageUrl?: string;
   autoConfirmShipment?: number;
   createTime: string;
   updateTime: string;
@@ -24,6 +25,7 @@ export interface SaveAutoDeliveryConfigReq {
   autoDeliveryContent: string;
   kamiConfigIds?: string;
   kamiDeliveryTemplate?: string;
+  autoDeliveryImageUrl?: string;
   autoConfirmShipment?: number;
 }
 

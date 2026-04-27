@@ -630,6 +630,109 @@ public class XianyuWebSocketClient extends WebSocketClient {
     }
     
     /**
+     * 发送图片消息
+     * 
+     * @param cid 会话ID
+     * @param toId 接收方ID
+     * @param imageUrl 图片URL
+     * @param width 图片宽度
+     * @param height 图片高度
+     */
+    public void sendImageMessage(String cid, String toId, String imageUrl, int width, int height) {
+        if (!isConnected) {
+            log.error("{}WebSocket未连接，无法发送图片消息", logPrefix());
+            return;
+        }
+        
+        try {
+            String cleanCid = cid.replace("@goofish", "");
+            String cleanToId = toId.replace("@goofish", "");
+            
+            log.info("{}准备发送图片消息: cid={}, toId={}, url={}, size={}x{}", 
+                    logPrefix(), cleanCid, cleanToId, imageUrl, width, height);
+            
+            // 构造图片消息内容
+            Map<String, Object> imageContent = new HashMap<>();
+            imageContent.put("contentType", 2);
+            
+            Map<String, Object> pics = new HashMap<>();
+            pics.put("height", height);
+            pics.put("type", 0);
+            pics.put("url", imageUrl);
+            pics.put("width", width);
+            
+            Map<String, Object> imageData = new HashMap<>();
+            imageData.put("pics", java.util.Collections.singletonList(pics));
+            imageContent.put("image", imageData);
+            
+            // Base64编码
+            String imageJson = objectMapper.writeValueAsString(imageContent);
+            String imageBase64 = java.util.Base64.getEncoder().encodeToString(imageJson.getBytes("UTF-8"));
+            
+            log.debug("{}图片内容JSON: {}", logPrefix(), imageJson);
+            
+            // 构造消息体
+            Map<String, Object> messageBody = new HashMap<>();
+            messageBody.put("uuid", generateUuid());
+            messageBody.put("cid", cleanCid + "@goofish");
+            messageBody.put("conversationType", 1);
+            
+            Map<String, Object> content = new HashMap<>();
+            content.put("contentType", 101);
+            Map<String, Object> custom = new HashMap<>();
+            custom.put("type", 1);
+            custom.put("data", imageBase64);
+            content.put("custom", custom);
+            messageBody.put("content", content);
+            
+            messageBody.put("redPointPolicy", 0);
+            
+            Map<String, String> extension = new HashMap<>();
+            extension.put("extJson", "{}");
+            messageBody.put("extension", extension);
+            
+            Map<String, String> ctx = new HashMap<>();
+            ctx.put("appVersion", "1.0");
+            ctx.put("platform", "web");
+            messageBody.put("ctx", ctx);
+            
+            messageBody.put("mtags", new HashMap<>());
+            messageBody.put("msgReadStatusSetting", 1);
+            
+            // 接收方
+            Map<String, Object> receivers = new HashMap<>();
+            java.util.List<String> actualReceivers = new java.util.ArrayList<>();
+            actualReceivers.add(cleanToId + "@goofish");
+            if (myUserId != null) {
+                actualReceivers.add(myUserId + "@goofish");
+            }
+            receivers.put("actualReceivers", actualReceivers);
+            
+            // 构造完整消息
+            Map<String, Object> message = new HashMap<>();
+            message.put("lwp", "/r/MessageSend/sendByReceiverScope");
+            
+            Map<String, String> headers = new HashMap<>();
+            headers.put("mid", generateMid());
+            message.put("headers", headers);
+            
+            java.util.List<Object> body = new java.util.ArrayList<>();
+            body.add(messageBody);
+            body.add(receivers);
+            message.put("body", body);
+            
+            // 发送
+            String messageJson = objectMapper.writeValueAsString(message);
+            log.debug("{}发送图片消息JSON: {}", logPrefix(), messageJson);
+            send(messageJson);
+            log.info("{}✅ 图片消息已发送: {}", logPrefix(), imageUrl);
+            
+        } catch (Exception e) {
+            log.error("{}❌ 发送图片消息失败: cid={}, toId={}", logPrefix(), cid, toId, e);
+        }
+    }
+    
+    /**
      * 生成消息ID (mid)
      * 格式: 随机数(0-999) + 时间戳(毫秒) + " 0"
      * 参考Python的generate_mid方法
