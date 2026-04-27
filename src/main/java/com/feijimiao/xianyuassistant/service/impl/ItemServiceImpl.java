@@ -312,6 +312,15 @@ public class ItemServiceImpl implements ItemService {
                         itemWithConfig.setXianyuAutoDeliveryOn(0);
                         itemWithConfig.setXianyuAutoReplyOn(0);
                     }
+                    
+                    // 获取自动发货配置
+                    com.feijimiao.xianyuassistant.entity.XianyuGoodsAutoDeliveryConfig deliveryConfig = 
+                            autoDeliveryService.getAutoDeliveryConfig(item.getXianyuAccountId(), item.getXyGoodId());
+                    
+                    if (deliveryConfig != null) {
+                        itemWithConfig.setAutoDeliveryType(deliveryConfig.getDeliveryMode());
+                        itemWithConfig.setAutoDeliveryContent(deliveryConfig.getAutoDeliveryContent());
+                    }
                 } else {
                     itemWithConfig.setXianyuAutoDeliveryOn(0);
                     itemWithConfig.setXianyuAutoReplyOn(0);

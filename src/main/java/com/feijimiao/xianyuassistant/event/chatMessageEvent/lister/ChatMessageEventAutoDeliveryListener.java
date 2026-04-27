@@ -232,7 +232,7 @@ public class ChatMessageEventAutoDeliveryListener {
                 content = deliveryConfig.getAutoDeliveryContent();
                 log.info("【账号{}】自动发货模式: content={}", accountId, content);
             } else if (deliveryMode == 2) {
-                content = acquireKamiContent(deliveryConfig.getKamiConfigIds(), orderId, accountId, xyGoodsId, sId, recordId);
+                content = acquireKamiContent(deliveryConfig.getKamiConfigIds(), deliveryConfig.getKamiDeliveryTemplate(), orderId, accountId, xyGoodsId, sId, recordId);
                 if (content == null) {
                     log.warn("【账号{}】卡密发货模式下无可用卡密: xyGoodsId={}, kamiConfigIds={}", accountId, xyGoodsId, deliveryConfig.getKamiConfigIds());
                     updateRecordState(recordId, -1, "卡密库存不足，无可用卡密");
@@ -287,7 +287,7 @@ public class ChatMessageEventAutoDeliveryListener {
         }
     }
 
-    private String acquireKamiContent(String kamiConfigIds, String orderId, Long accountId, String xyGoodsId, String sId, Long recordId) {
+    private String acquireKamiContent(String kamiConfigIds, String kamiDeliveryTemplate, String orderId, Long accountId, String xyGoodsId, String sId, Long recordId) {
         if (kamiConfigIds == null || kamiConfigIds.trim().isEmpty()) {
             log.warn("【账号{}】卡密发货未绑定卡密配置: xyGoodsId={}", accountId, xyGoodsId);
             return null;
@@ -309,7 +309,11 @@ public class ChatMessageEventAutoDeliveryListener {
                     usageRecord.setBuyerUserId(cid);
                     kamiUsageRecordMapper.insert(usageRecord);
                     log.info("【账号{}】卡密发货成功: configId={}, itemId={}, orderId={}", accountId, configId, kamiItem.getId(), orderId);
-                    return kamiItem.getKamiContent();
+                    String kamiContent = kamiItem.getKamiContent();
+                    if (kamiDeliveryTemplate != null && !kamiDeliveryTemplate.trim().isEmpty()) {
+                        kamiContent = kamiDeliveryTemplate.replace("{kmKey}", kamiContent);
+                    }
+                    return kamiContent;
                 }
             } catch (NumberFormatException e) {
                 log.warn("【账号{}】卡密配置ID格式错误: {}", accountId, configIdStr);

@@ -44,6 +44,11 @@ public class AutoDeliveryConfigRespDTO {
      * 卡密发货：绑定的卡密配置ID列表（逗号分隔）
      */
     private String kamiConfigIds;
+
+    /**
+     * 卡密发货文案模板，使用{kmKey}占位符替换卡密内容
+     */
+    private String kamiDeliveryTemplate;
     
     /**
      * 自动确认发货开关：0-关闭，1-开启

@@ -152,7 +152,7 @@ const {
                   class="ad__goods-auto-badge ad__goods-auto-badge--on"
                 >
                   <IconSparkle />
-                  自动
+                  {{ goods.autoDeliveryType === 2 ? '卡密' : '文本' }}
                 </span>
               </div>
             </div>
@@ -385,17 +385,40 @@ const {
                   placeholder="请选择卡密配置"
                   clearable
                   style="width: 100%;"
+                  popper-class="kami-config-select-popper"
                 >
                   <el-option
                     v-for="opt in kamiConfigOptions"
                     :key="opt.id"
-                    :label="`${opt.aliasName || `配置#${opt.id}`} (可用 ${opt.availableCount} / 总 ${opt.totalCount})`"
+                    :label="opt.aliasName || `配置#${opt.id}`"
                     :value="String(opt.id)"
-                  />
+                  >
+                    <div class="kami-option">
+                      <span class="kami-option__name">{{ opt.aliasName || `配置#${opt.id}` }}</span>
+                      <span class="kami-option__stats">
+                        <span class="kami-option__avail">可用{{ opt.availableCount }}</span>
+                        <span class="kami-option__divider">/</span>
+                        <span class="kami-option__total">总{{ opt.totalCount }}</span>
+                      </span>
+                    </div>
+                  </el-option>
                 </el-select>
                 <div v-if="kamiConfigOptions.length === 0" style="color: #86868b; font-size: 13px; margin-top: 8px;">
                   暂无卡密配置，请先在「卡密配置」页面创建
                 </div>
+              </div>
+
+              <div style="margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                  <span style="font-size: 13px; color: #6e6e73;">发货文案</span>
+                  <el-tag size="small" type="info" effect="plain" style="font-size: 11px;">占位符 {kmKey}</el-tag>
+                </div>
+                <el-input
+                  v-model="configForm.kamiDeliveryTemplate"
+                  type="textarea"
+                  :rows="3"
+                  placeholder="可选，填写后发货时将用卡密替换{kmKey}发送，不填则直接发送卡密内容。例：您的卡密为：{kmKey}，请妥善保管"
+                />
               </div>
 
               <div class="ad__save-row">
@@ -710,5 +733,43 @@ const {
 .overlay-fade-enter-from,
 .overlay-fade-leave-to {
   opacity: 0;
+}
+</style>
+
+<style>
+.kami-config-select-popper {
+  min-width: 180px !important;
+}
+.kami-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+.kami-option__name {
+  font-size: 14px;
+  color: #1d1d1f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kami-option__stats {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.kami-option__avail {
+  color: #34c759;
+  font-weight: 600;
+}
+.kami-option__divider {
+  color: #c0c4cc;
+}
+.kami-option__total {
+  color: #909399;
 }
 </style>

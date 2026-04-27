@@ -328,7 +328,7 @@ onMounted(() => {
           </div>
           <div class="config-card__meta">
             {{ config.deliveryMethod === 1 ? '随机发货' : '顺序发货' }}
-            · {{ config.allowRepeat === 1 ? '允许重复' : '不重复' }}
+            · {{ config.allowRepeat === 1 ? '非一次性' : '一次性' }}
           </div>
           <el-button
             class="config-card__del"
@@ -359,7 +359,7 @@ onMounted(() => {
               <span v-if="!rulesExpanded" class="rule-card__summary">
                 {{ selectedConfig.deliveryMethod === 1 ? '随机' : '顺序' }}发货
                 ·
-                {{ selectedConfig.allowRepeat === 1 ? '允许重复' : '不重复' }}
+                {{ selectedConfig.allowRepeat === 1 ? '非一次性' : '一次性' }}
               </span>
             </div>
             <div v-show="rulesExpanded" class="rule-card__body">
@@ -374,13 +374,13 @@ onMounted(() => {
                 </el-radio-group>
               </div>
               <div class="rule-card__row">
-                <span class="rule-card__label">🔁 重复发货</span>
+                <span class="rule-card__label">🔑 卡密特性</span>
                 <el-radio-group
                   :model-value="selectedConfig.allowRepeat"
                   @change="(v: number) => handleUpdateConfigField('allowRepeat', v)"
                 >
-                  <el-radio :value="0">不允许</el-radio>
-                  <el-radio :value="1">允许</el-radio>
+                  <el-radio :value="0">一次性卡密</el-radio>
+                  <el-radio :value="1">非一次性卡密</el-radio>
                 </el-radio-group>
               </div>
             </div>
@@ -430,10 +430,10 @@ onMounted(() => {
             <el-radio :value="2">顺序发货</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="重复发货">
+        <el-form-item label="卡密特性">
           <el-radio-group v-model="createForm.allowRepeat">
-            <el-radio :value="0">不允许</el-radio>
-            <el-radio :value="1">允许</el-radio>
+            <el-radio :value="0">一次性卡密</el-radio>
+            <el-radio :value="1">非一次性卡密</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
