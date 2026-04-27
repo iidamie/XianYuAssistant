@@ -48,7 +48,7 @@ const router = createRouter({
       path: '/orders',
       name: 'orders',
       component: () => import('@/views/orders/index.vue'),
-      meta: { title: '订单管理', icon: '📋' }
+      meta: { title: '发货记录', icon: '📋' }
     },
     {
       path: '/messages',
@@ -61,6 +61,12 @@ const router = createRouter({
       name: 'auto-delivery',
       component: () => import('@/views/auto-delivery/index.vue'),
       meta: { title: '自动发货', icon: '🤖' }
+    },
+    {
+      path: '/kami-config',
+      name: 'kami-config',
+      component: () => import('@/views/kami-config/index.vue'),
+      meta: { title: '卡密配置', icon: '🔑' }
     },
     {
       path: '/auto-reply',

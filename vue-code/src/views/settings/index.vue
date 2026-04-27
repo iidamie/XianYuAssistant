@@ -995,7 +995,7 @@ async function handleTestEmail() {
 
           <div class="settings__form">
             <div class="settings__field">
-              <label class="settings__label">服务器无法连接邮箱通知</label>
+              <label class="settings__label">闲鱼账号掉线通知</label>
               <label class="settings__switch">
                 <input
                   type="checkbox"
@@ -1019,7 +1019,7 @@ async function handleTestEmail() {
         <!-- 交流群 -->
         <div class="settings__section">
           <div class="settings__section-title">交流群</div>
-          <p class="settings__desc">扫描下方二维码加入微信交流群</p>
+          <p class="settings__desc">扫描下方二维码添加好友邀请您加入微信交流群</p>
           <div class="settings__qrcode-wrapper">
             <img src="/fjm/wx.png" alt="微信交流群二维码" class="settings__qrcode" />
           </div>

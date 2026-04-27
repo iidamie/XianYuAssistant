@@ -3,14 +3,12 @@ package com.feijimiao.xianyuassistant.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.feijimiao.xianyuassistant.config.rag.DynamicAIChatClientManager;
-import com.feijimiao.xianyuassistant.entity.XianyuGoodsAutoReplyConfig;
 import com.feijimiao.xianyuassistant.entity.XianyuGoodsAutoReplyRecord;
 import com.feijimiao.xianyuassistant.entity.XianyuGoodsConfig;
 import com.feijimiao.xianyuassistant.entity.XianyuChatMessage;
 import com.feijimiao.xianyuassistant.entity.XianyuGoodsInfo;
 import com.feijimiao.xianyuassistant.entity.bo.AutoReplyTriggerContext;
 import com.feijimiao.xianyuassistant.event.chatMessageEvent.ChatMessageData;
-import com.feijimiao.xianyuassistant.mapper.XianyuGoodsAutoReplyConfigMapper;
 import com.feijimiao.xianyuassistant.mapper.XianyuGoodsAutoReplyRecordMapper;
 import com.feijimiao.xianyuassistant.mapper.XianyuGoodsConfigMapper;
 import com.feijimiao.xianyuassistant.mapper.XianyuGoodsInfoMapper;
@@ -29,9 +27,6 @@ import java.util.List;
 
 /**
  * 自动回复服务实现
- * 
- * @author IAMLZY
- * @date 2026/4/22
  */
 @Slf4j
 @Service
@@ -39,9 +34,6 @@ public class AutoReplyServiceImpl implements AutoReplyService {
     
     @Autowired
     private XianyuGoodsConfigMapper goodsConfigMapper;
-    
-    @Autowired
-    private XianyuGoodsAutoReplyConfigMapper autoReplyConfigMapper;
     
     @Autowired
     private XianyuGoodsAutoReplyRecordMapper autoReplyRecordMapper;
@@ -181,6 +173,8 @@ public class AutoReplyServiceImpl implements AutoReplyService {
             String contextMessages = null;
             if (useContext) {
                 contextMessages = buildContextMessages(accountId, sId);
+            } else {
+                log.info("【账号{}】上下文开关已关闭，跳过构建上下文", accountId);
             }
             
             // 7. 调用AI服务生成回复（带命中资料）

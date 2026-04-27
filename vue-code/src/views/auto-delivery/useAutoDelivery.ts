@@ -19,6 +19,10 @@ import {
   type TriggerAutoDeliveryReq
 } from '@/api/auto-delivery-record'
 import { showSuccess, showError, showInfo } from '@/utils'
+import {
+  getKamiConfigsByAccountId,
+  type KamiConfig
+} from '@/api/kami-config'
 import type { Account } from '@/types'
 import type { GoodsItemWithConfig } from '@/api/goods'
 
@@ -59,9 +63,18 @@ export function useAutoDelivery() {
 
   // Config form
   const configForm = ref({
-    type: 1,
+    deliveryMode: 1,
     autoDeliveryContent: '',
+    kamiConfigIds: '',
+    kamiDeliveryTemplate: '',
     autoConfirmShipment: 0
+  })
+
+  const kamiConfigOptions = ref<KamiConfig[]>([])
+
+  const selectedKamiConfigId = computed({
+    get: () => configForm.value.kamiConfigIds || '',
+    set: (val: string) => { configForm.value.kamiConfigIds = val }
   })
 
   // Delivery records
@@ -192,7 +205,7 @@ export function useAutoDelivery() {
 
         if (accounts.value.length > 0 && !selectedAccountId.value) {
           selectedAccountId.value = accounts.value[0]?.id || null
-          loadGoods()
+          await loadGoods()
         }
       }
     } catch (error: any) {
@@ -234,7 +247,7 @@ export function useAutoDelivery() {
         }
 
         if (goodsCurrentPage.value === 1 && goodsList.value.length > 0 && !selectedGoods.value) {
-          selectGoods(goodsList.value[0]!)
+          await selectGoods(goodsList.value[0]!)
         }
 
         checkAndLoadMore()
@@ -287,10 +300,21 @@ export function useAutoDelivery() {
     recordsPageNum.value = 1
     await loadConfig()
     await loadDeliveryRecords()
+    await loadKamiConfigOptions()
 
     if (isMobile.value) {
       mobileView.value = 'config'
     }
+  }
+
+  const loadKamiConfigOptions = async () => {
+    if (!selectedAccountId.value) return
+    try {
+      const res = await getKamiConfigsByAccountId(selectedAccountId.value)
+      if (res.code === 200) {
+        kamiConfigOptions.value = res.data || []
+      }
+    } catch {}
   }
 
   // Load config
@@ -307,12 +331,16 @@ export function useAutoDelivery() {
       if (response.code === 0 || response.code === 200) {
         currentConfig.value = response.data || null
         if (response.data) {
-          configForm.value.type = response.data.type
+          configForm.value.deliveryMode = response.data.deliveryMode || 1
           configForm.value.autoDeliveryContent = response.data.autoDeliveryContent || ''
+          configForm.value.kamiConfigIds = response.data.kamiConfigIds || ''
+          configForm.value.kamiDeliveryTemplate = response.data.kamiDeliveryTemplate || ''
           configForm.value.autoConfirmShipment = response.data.autoConfirmShipment || 0
         } else {
-          configForm.value.type = 1
+          configForm.value.deliveryMode = 1
           configForm.value.autoDeliveryContent = ''
+          configForm.value.kamiConfigIds = ''
+          configForm.value.kamiDeliveryTemplate = ''
           configForm.value.autoConfirmShipment = 0
         }
       } else {
@@ -331,8 +359,12 @@ export function useAutoDelivery() {
       return
     }
 
-    if (!configForm.value.autoDeliveryContent.trim()) {
+    if (configForm.value.deliveryMode === 1 && !configForm.value.autoDeliveryContent.trim()) {
       showInfo('请输入自动发货内容')
+      return
+    }
+    if (configForm.value.deliveryMode === 2 && !configForm.value.kamiConfigIds) {
+      showInfo('请绑定卡密配置')
       return
     }
 
@@ -342,8 +374,10 @@ export function useAutoDelivery() {
         xianyuAccountId: selectedAccountId.value,
         xianyuGoodsId: selectedGoods.value.item.id,
         xyGoodsId: selectedGoods.value.item.xyGoodId,
-        type: configForm.value.type,
+        deliveryMode: configForm.value.deliveryMode,
         autoDeliveryContent: configForm.value.autoDeliveryContent.trim(),
+        kamiConfigIds: configForm.value.kamiConfigIds,
+        kamiDeliveryTemplate: configForm.value.kamiDeliveryTemplate.trim(),
         autoConfirmShipment: configForm.value.autoConfirmShipment
       }
 
@@ -584,6 +618,8 @@ export function useAutoDelivery() {
     confirmShipmentUrl,
     confirmShipmentParams,
     confirmShipmentParamsJson,
+    kamiConfigOptions,
+    selectedKamiConfigId,
 
     // Methods
     loadAccounts,

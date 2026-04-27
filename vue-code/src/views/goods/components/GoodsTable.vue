@@ -114,6 +114,13 @@ const handleImgError = (e: Event) => {
             <IconSend />
             <span>发货</span>
           </button>
+          <span
+            v-if="item.xianyuAutoDeliveryOn === 1"
+            class="goods-card__type-tag"
+            :class="item.autoDeliveryType === 2 ? 'goods-card__type-tag--kami' : 'goods-card__type-tag--text'"
+          >
+            {{ item.autoDeliveryType === 2 ? '卡密' : '文本' }}
+          </span>
           <button
             class="goods-card__switch"
             :class="{ 'goods-card__switch--on': item.xianyuAutoReplyOn === 1 }"
@@ -160,6 +167,7 @@ const handleImgError = (e: Event) => {
           <th class="table__th table__th--price">价格</th>
           <th class="table__th table__th--status">状态</th>
           <th class="table__th table__th--switch">自动发货</th>
+          <th class="table__th table__th--switch">发货类型</th>
           <th class="table__th table__th--switch">自动回复</th>
           <th class="table__th table__th--actions">操作</th>
         </tr>
@@ -210,6 +218,16 @@ const handleImgError = (e: Event) => {
                 <span class="toggle-btn__thumb"></span>
               </span>
             </button>
+          </td>
+          <td class="table__td table__td--switch">
+            <span
+              v-if="item.xianyuAutoDeliveryOn === 1"
+              class="delivery-type-tag"
+              :class="item.autoDeliveryType === 2 ? 'delivery-type-tag--kami' : 'delivery-type-tag--text'"
+            >
+              {{ item.autoDeliveryType === 2 ? '卡密' : '文本' }}
+            </span>
+            <span v-else class="delivery-type-tag delivery-type-tag--off">-</span>
           </td>
           <td class="table__td table__td--switch">
             <button
@@ -803,5 +821,53 @@ const handleImgError = (e: Event) => {
     height: 30px;
     font-size: 11px;
   }
+}
+
+/* ============================================================
+   Delivery Type Tag
+   ============================================================ */
+.delivery-type-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.delivery-type-tag--text {
+  color: var(--c-accent);
+  background: rgba(0, 122, 255, 0.08);
+}
+
+.delivery-type-tag--kami {
+  color: #9b59b6;
+  background: rgba(155, 89, 182, 0.08);
+}
+
+.delivery-type-tag--off {
+  color: var(--c-text-3);
+}
+
+.goods-card__type-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.goods-card__type-tag--text {
+  color: var(--c-accent);
+  background: rgba(0, 122, 255, 0.1);
+}
+
+.goods-card__type-tag--kami {
+  color: #9b59b6;
+  background: rgba(155, 89, 182, 0.1);
 }
 </style>

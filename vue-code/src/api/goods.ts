@@ -23,6 +23,8 @@ export interface GoodsItemWithConfig {
   xianyuAutoDeliveryOn: number;
   xianyuAutoReplyOn: number;
   xianyuAutoReplyContextOn: number;
+  autoDeliveryType?: number;
+  autoDeliveryContent?: string;
 }
 
 // 商品列表响应

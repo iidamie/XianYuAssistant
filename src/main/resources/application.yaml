@@ -15,6 +15,9 @@ jwt:
 
 
 spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
   datasource:
     url: jdbc:sqlite:dbdata/xianyu_assistant.db
   # AI配置说明：
