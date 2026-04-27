@@ -173,6 +173,8 @@ public class AutoReplyServiceImpl implements AutoReplyService {
             String contextMessages = null;
             if (useContext) {
                 contextMessages = buildContextMessages(accountId, sId);
+            } else {
+                log.info("【账号{}】上下文开关已关闭，跳过构建上下文", accountId);
             }
             
             // 7. 调用AI服务生成回复（带命中资料）

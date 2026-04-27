@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # XianYuAssistant 一键安装脚本
-# 使用方法: curl -fsSL https://gitee.com/lzy2018cn/xian-yu-assistant/raw/master/install.sh | bash
+# 使用方法: curl -fsSL https://raw.githubusercontent.com/IAMLZY2018/XianYuAssistant/master/install.sh | bash
 #
 
 set -e
@@ -16,12 +16,12 @@ NC='\033[0m'
 # 配置
 INSTALL_DIR="${HOME}/xianyu-assistant"
 PORT="${PORT:-12400}"
-JAVA_OPTS="${JAVA_OPTS:--Xms256m -Xmx512m}"v
+JAVA_OPTS="${JAVA_OPTS:--Xms256m -Xmx512m}"
 JDK_VERSION="21"
 
-# JAR 包下载地址
-GITEE_JAR="https://gitee.com/lzy2018cn/xian-yu-assistant/releases/download/latest/xianyu-assistant.jar"
-GITHUB_JAR="https://github.com/IAMLZY2018/XianYuAssistant/releases/download/latest/xianyu-assistant.jar"
+# GitHub API
+GITHUB_API="https://api.github.com/repos/IAMLZY2018/XianYuAssistant/releases/latest"
+GITEE_API="https://gitee.com/api/v5/repos/lzy2018cn/xian-yu-assistant/releases/latest"
 
 echo -e "${BLUE}"
 echo "╔════════════════════════════════════════════════════════╗"
@@ -115,15 +115,60 @@ select_source() {
     case "$source_choice" in
         2)
             SOURCE="github"
-            JAR_URL="$GITHUB_JAR"
             echo -e "${GREEN}✓ 已选择 GitHub${NC}"
             ;;
         *)
             SOURCE="gitee"
-            JAR_URL="$GITEE_JAR"
             echo -e "${GREEN}✓ 已选择 Gitee${NC}"
             ;;
     esac
+}
+
+# 获取最新版本下载链接
+get_latest_release() {
+    echo ""
+    echo -e "${YELLOW}正在获取最新版本信息...${NC}"
+    
+    if [ "$SOURCE" = "github" ]; then
+        API_URL="$GITHUB_API"
+    else
+        API_URL="$GITEE_API"
+    fi
+    
+    RELEASE_INFO=$(curl -fsSL --connect-timeout 10 "$API_URL" 2>/dev/null || echo "")
+    
+    if [ -z "$RELEASE_INFO" ]; then
+        if [ "$SOURCE" = "gitee" ]; then
+            echo -e "${YELLOW}Gitee API 失败，尝试 GitHub...${NC}"
+            SOURCE="github"
+            RELEASE_INFO=$(curl -fsSL --connect-timeout 10 "$GITHUB_API" 2>/dev/null || echo "")
+        else
+            echo -e "${YELLOW}GitHub API 失败，尝试 Gitee...${NC}"
+            SOURCE="gitee"
+            RELEASE_INFO=$(curl -fsSL --connect-timeout 10 "$GITEE_API" 2>/dev/null || echo "")
+        fi
+    fi
+    
+    if [ -z "$RELEASE_INFO" ]; then
+        echo -e "${RED}无法获取版本信息，请检查网络${NC}"
+        exit 1
+    fi
+    
+    if [ "$SOURCE" = "github" ]; then
+        LATEST_VERSION=$(echo "$RELEASE_INFO" | grep -m 1 '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        JAR_URL=$(echo "$RELEASE_INFO" | grep -m 1 'browser_download_url.*\.jar"' | sed -E 's/.*"([^"]+\.jar)".*/\1/')
+    else
+        LATEST_VERSION=$(echo "$RELEASE_INFO" | grep -m 1 '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        JAR_URL=$(echo "$RELEASE_INFO" | grep -m 1 'browser_download_url.*\.jar"' | sed -E 's/.*"([^"]+\.jar)".*/\1/')
+    fi
+    
+    if [ -z "$JAR_URL" ]; then
+        echo -e "${RED}未找到 JAR 下载链接${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✓ 最新版本: ${LATEST_VERSION}${NC}"
+    echo -e "${GREEN}✓ 下载地址: ${JAR_URL}${NC}"
 }
 
 # 下载 JAR 包
@@ -134,23 +179,11 @@ download_jar() {
     echo ""
     echo -e "${YELLOW}正在下载 JAR 包...${NC}"
     
-    if curl -fsSL --connect-timeout 15 "$JAR_URL" -o xianyu-assistant.jar; then
+    if curl -fSL --connect-timeout 30 -L "$JAR_URL" -o xianyu-assistant.jar; then
         echo -e "${GREEN}✓ 下载成功${NC}"
     else
-        # 如果选择的源失败，尝试另一个
-        echo -e "${YELLOW}主源下载失败，尝试备用源...${NC}"
-        if [ "$SOURCE" = "gitee" ]; then
-            BACKUP_URL="$GITHUB_JAR"
-        else
-            BACKUP_URL="$GITEE_JAR"
-        fi
-        
-        if curl -fsSL --connect-timeout 15 "$BACKUP_URL" -o xianyu-assistant.jar; then
-            echo -e "${GREEN}✓ 下载成功 (备用源)${NC}"
-        else
-            echo -e "${RED}下载失败，请检查网络${NC}"
-            exit 1
-        fi
+        echo -e "${RED}下载失败，请检查网络${NC}"
+        exit 1
     fi
 }
 
@@ -205,6 +238,9 @@ main() {
     # 选择下载源
     select_source
     
+    # 获取最新版本
+    get_latest_release
+    
     # 下载并启动
     download_jar
     start_service
@@ -216,6 +252,8 @@ main() {
     echo -e "${GREEN}╔════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}║          安装成功！                   ║${NC}"
     echo -e "${GREEN}╚════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${BLUE}版本信息:${NC} ${LATEST_VERSION}"
     echo ""
     echo -e "${BLUE}访问地址:${NC}"
     echo -e "  本地:   ${GREEN}http://localhost:${PORT}${NC}"
