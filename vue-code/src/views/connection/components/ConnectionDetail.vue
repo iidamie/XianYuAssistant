@@ -431,7 +431,7 @@ onBeforeUnmount(() => {
         <!-- Action Buttons -->
         <div class="action-bar">
           <button
-            v-if="connectionStatus.connected"
+            v-if="connectionStatus.connected === true"
             class="btn btn--stop"
             @click="handleStopConnection"
           >
@@ -602,9 +602,10 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="action-bar action-bar--mobile">
-              <button v-if="connectionStatus.connected" class="btn btn--stop" @click="handleStopConnection"><IconStop /><span>断开连接</span></button>
-              <button v-else class="btn btn--start" @click="handleStartConnection"><IconPlay /><span>启动连接</span></button>
-              <button class="btn btn--qr" @click="showQRUpdateDialog = true"><IconQrCode /><span>扫码更新</span></button>
+              <button v-if="connectionStatus.connected === true" class="btn btn--stop" @click="handleStopConnection"><IconStop /><span>断开</span></button>
+              <button v-else class="btn btn--start" @click="handleStartConnection"><IconPlay /><span>启动</span></button>
+              <button class="btn btn--qr" @click="showQRUpdateDialog = true"><IconQrCode /><span>扫码</span></button>
+              <button class="btn btn--secondary" @click="handleRefresh" :disabled="statusLoading"><IconRefresh /><span>刷新</span></button>
             </div>
 
             <div class="action-tip">请勿频繁启用/断开连接，否则容易触发人机校验导致账号暂时不可用</div>
@@ -1014,12 +1015,14 @@ onBeforeUnmount(() => {
 .info-card__actions {
   display: flex;
   gap: 8px;
+  width: 100%;
 }
 
 .info-card__actions .btn {
   flex: 1;
   height: 32px;
   font-size: 12px;
+  min-width: 0;
 }
 
 .info-card__actions .btn svg {
@@ -1032,19 +1035,20 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   height: 36px;
-  padding: 0 14px;
+  padding: 0 16px;
   font-size: 13px;
-  font-weight: 500;
-  border-radius: var(--c-r-sm);
-  border: 1px solid transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
   cursor: pointer;
-  transition: all var(--c-ease);
+  transition: all 0.2s ease;
   white-space: nowrap;
-  min-width: 40px;
+  min-width: 0;
   -webkit-tap-highlight-color: transparent;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.05);
+  color: #1d1d1f;
 }
 
 .btn svg {
@@ -1054,77 +1058,68 @@ onBeforeUnmount(() => {
 }
 
 .btn--secondary {
-  color: var(--c-text-1);
-  background: rgba(0, 0, 0, 0.03);
-  border-color: var(--c-border-strong);
+  background: rgba(0, 0, 0, 0.06);
+  color: #1d1d1f;
 }
 
-@media (hover: hover) {
-  .btn--secondary:hover {
-    background: rgba(0, 0, 0, 0.06);
-  }
+.btn--secondary:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .btn--ghost {
-  color: var(--c-accent);
+  background: rgba(0, 122, 255, 0.1);
+  color: #007aff;
 }
 
-@media (hover: hover) {
-  .btn--ghost:hover {
-    background: rgba(0, 122, 255, 0.06);
-  }
+.btn--ghost:hover {
+  background: rgba(0, 122, 255, 0.15);
 }
 
 .btn--start {
-  color: #fff;
-  background: var(--c-success);
-  border-color: var(--c-success);
+  background: #34c759;
+  color: #ffffff;
 }
 
-@media (hover: hover) {
-  .btn--start:hover {
-    background: #2db84e;
-  }
+.btn--start:hover {
+  background: #2db84e;
 }
 
 .btn--stop {
-  color: #fff;
-  background: var(--c-danger);
-  border-color: var(--c-danger);
+  background: #ff3b30;
+  color: #ffffff;
 }
 
-@media (hover: hover) {
-  .btn--stop:hover {
-    background: #e0332a;
-  }
+.btn--stop:hover {
+  background: #e0332a;
 }
 
 .btn--qr {
-  color: #fff;
-  background: var(--c-accent);
-  border-color: var(--c-accent);
+  background: #007aff;
+  color: #ffffff;
 }
 
-@media (hover: hover) {
-  .btn--qr:hover {
-    background: #0066d6;
-  }
+.btn--qr:hover {
+  background: #0066d6;
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* --- Action Bar --- */
 .action-bar {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  width: 100%;
+  align-items: center;
 }
 
 .action-bar--mobile {
@@ -1132,8 +1127,14 @@ onBeforeUnmount(() => {
 }
 
 .action-bar .btn {
-  flex: 1;
-  min-width: 100px;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.action-bar .btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .action-tip {
@@ -1284,6 +1285,11 @@ onBeforeUnmount(() => {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.mobile-overlay__scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .slide-up-enter-active,
@@ -1322,12 +1328,27 @@ onBeforeUnmount(() => {
     gap: 12px;
   }
 
+  .btn {
+    height: 36px;
+    font-size: 12px;
+    padding: 0 10px;
+    gap: 5px;
+    border-radius: 8px;
+  }
+
   .action-bar {
-    flex-direction: column;
+    gap: 8px;
   }
 
   .action-bar .btn {
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .info-card__actions .btn {
+    height: 32px;
+    font-size: 11px;
+    padding: 0 12px;
   }
 }
 </style>
