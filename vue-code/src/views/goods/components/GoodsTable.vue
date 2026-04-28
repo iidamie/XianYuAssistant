@@ -9,7 +9,6 @@ import IconSend from '@/components/icons/IconSend.vue'
 import IconRobot from '@/components/icons/IconRobot.vue'
 import IconImage from '@/components/icons/IconImage.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
-import IconSparkle from '@/components/icons/IconSparkle.vue'
 
 interface Props {
   goodsList: GoodsItemWithConfig[]
@@ -241,10 +240,6 @@ const handleImgError = (e: Event) => {
             </button>
           </td>
           <td class="table__td table__td--actions">
-            <button class="table__action table__action--config" @click="emit('configAutoDelivery', item)">
-              <IconSparkle />
-              <span>配置</span>
-            </button>
             <button class="table__action table__action--detail" @click="emit('view', item.item.xyGoodId)">
               <IconCheck />
               <span>详情</span>
@@ -525,7 +520,7 @@ const handleImgError = (e: Event) => {
 .table__th--price { width: 100px; text-align: right; }
 .table__th--status { width: 80px; }
 .table__th--switch { width: 90px; text-align: center; }
-.table__th--actions { width: 180px; text-align: center; }
+.table__th--actions { width: 130px; text-align: center; }
 
 /* Table Body */
 .table__tr {

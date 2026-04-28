@@ -106,6 +106,19 @@ const handleConfigAutoDelivery = () => {
   handleClose()
 }
 
+// 配置自动回复
+const handleConfigAutoReply = () => {
+  if (!goodsDetail.value) return
+  router.push({
+    path: '/auto-reply',
+    query: {
+      accountId: props.accountId?.toString(),
+      goodsId: goodsDetail.value.item.xyGoodId
+    }
+  })
+  handleClose()
+}
+
 // 删除商品
 const handleDelete = async () => {
   if (!props.accountId || !goodsDetail.value) return
@@ -260,24 +273,42 @@ onBeforeUnmount(() => {
                   <IconSend />
                   <span>自动发货</span>
                 </div>
-                <span
-                  class="detail-info__config-value"
-                  :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoDeliveryOn === 1 }"
-                >
-                  {{ goodsDetail.xianyuAutoDeliveryOn === 1 ? '已开启' : '已关闭' }}
-                </span>
+                <div class="detail-info__config-right">
+                  <span
+                    class="detail-info__config-value"
+                    :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoDeliveryOn === 1 }"
+                  >
+                    {{ goodsDetail.xianyuAutoDeliveryOn === 1 ? '已开启' : '已关闭' }}
+                  </span>
+                  <button
+                    class="detail-info__config-btn"
+                    @click="handleConfigAutoDelivery"
+                  >
+                    <IconSparkle />
+                    <span>配置</span>
+                  </button>
+                </div>
               </div>
               <div class="detail-info__config-item">
                 <div class="detail-info__config-left">
                   <IconRobot />
                   <span>自动回复</span>
                 </div>
-                <span
-                  class="detail-info__config-value"
-                  :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoReplyOn === 1 }"
-                >
-                  {{ goodsDetail.xianyuAutoReplyOn === 1 ? '已开启' : '已关闭' }}
-                </span>
+                <div class="detail-info__config-right">
+                  <span
+                    class="detail-info__config-value"
+                    :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoReplyOn === 1 }"
+                  >
+                    {{ goodsDetail.xianyuAutoReplyOn === 1 ? '已开启' : '已关闭' }}
+                  </span>
+                  <button
+                    class="detail-info__config-btn detail-info__config-btn--reply"
+                    @click="handleConfigAutoReply"
+                  >
+                    <IconSparkle />
+                    <span>配置</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -295,13 +326,9 @@ onBeforeUnmount(() => {
 
             <!-- Actions -->
             <div class="detail-info__actions">
-              <button class="detail-info__action detail-info__action--config" @click="handleConfigAutoDelivery">
-                <IconSparkle />
-                <span>配置发货</span>
-              </button>
               <button class="detail-info__action detail-info__action--delete" @click="handleDelete">
                 <IconTrash />
-                <span>删除</span>
+                <span>删除商品</span>
               </button>
             </div>
           </div>
@@ -400,24 +427,42 @@ onBeforeUnmount(() => {
                       <IconSend />
                       <span>自动发货</span>
                     </div>
-                    <span
-                      class="detail-info__config-value"
-                      :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoDeliveryOn === 1 }"
-                    >
-                      {{ goodsDetail.xianyuAutoDeliveryOn === 1 ? '已开启' : '已关闭' }}
-                    </span>
+                    <div class="detail-info__config-right">
+                      <span
+                        class="detail-info__config-value"
+                        :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoDeliveryOn === 1 }"
+                      >
+                        {{ goodsDetail.xianyuAutoDeliveryOn === 1 ? '已开启' : '已关闭' }}
+                      </span>
+                      <button
+                        class="detail-info__config-btn"
+                        @click="handleConfigAutoDelivery"
+                      >
+                        <IconSparkle />
+                        <span>配置</span>
+                      </button>
+                    </div>
                   </div>
                   <div class="detail-info__config-item">
                     <div class="detail-info__config-left">
                       <IconRobot />
                       <span>自动回复</span>
                     </div>
-                    <span
-                      class="detail-info__config-value"
-                      :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoReplyOn === 1 }"
-                    >
-                      {{ goodsDetail.xianyuAutoReplyOn === 1 ? '已开启' : '已关闭' }}
-                    </span>
+                    <div class="detail-info__config-right">
+                      <span
+                        class="detail-info__config-value"
+                        :class="{ 'detail-info__config-value--on': goodsDetail.xianyuAutoReplyOn === 1 }"
+                      >
+                        {{ goodsDetail.xianyuAutoReplyOn === 1 ? '已开启' : '已关闭' }}
+                      </span>
+                      <button
+                        class="detail-info__config-btn detail-info__config-btn--reply"
+                        @click="handleConfigAutoReply"
+                      >
+                        <IconSparkle />
+                        <span>配置</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -433,13 +478,9 @@ onBeforeUnmount(() => {
                 </div>
 
                 <div class="detail-info__actions">
-                  <button class="detail-info__action detail-info__action--config" @click="handleConfigAutoDelivery">
-                    <IconSparkle />
-                    <span>配置发货</span>
-                  </button>
                   <button class="detail-info__action detail-info__action--delete" @click="handleDelete">
                     <IconTrash />
-                    <span>删除</span>
+                    <span>删除商品</span>
                   </button>
                 </div>
               </div>
@@ -933,6 +974,44 @@ onBeforeUnmount(() => {
   color: var(--d-success);
 }
 
+.detail-info__config-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-info__config-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 12px;
+  border: none;
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--d-accent);
+  cursor: pointer;
+  transition: all var(--d-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.detail-info__config-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+@media (hover: hover) {
+  .detail-info__config-btn:hover {
+    background: rgba(0, 122, 255, 0.18);
+  }
+}
+
+.detail-info__config-btn:active {
+  transform: scale(0.95);
+}
+
 .detail-info__time {
   display: flex;
   flex-direction: column;
@@ -956,6 +1035,8 @@ onBeforeUnmount(() => {
 .detail-info__actions {
   display: flex;
   gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--d-border);
 }
 
 .detail-info__action {
@@ -978,17 +1059,6 @@ onBeforeUnmount(() => {
 .detail-info__action svg {
   width: 15px;
   height: 15px;
-}
-
-.detail-info__action--config {
-  color: var(--d-accent);
-  border-color: rgba(0, 122, 255, 0.2);
-}
-
-@media (hover: hover) {
-  .detail-info__action--config:hover {
-    background: rgba(0, 122, 255, 0.06);
-  }
 }
 
 .detail-info__action--delete {

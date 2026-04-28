@@ -73,13 +73,13 @@ const getPageButtons = () => {
       </div>
       <div class="goods__actions">
         <button
-          class="btn btn--secondary"
+          class="btn btn--primary"
           :class="{ 'btn--loading': refreshing || syncing }"
           :disabled="refreshing || syncing || !selectedAccountId"
           @click="handleRefresh"
         >
           <IconRefresh />
-          <span class="mobile-hidden">刷新</span>
+          <span class="mobile-hidden">同步闲鱼商品</span>
         </button>
         <div v-if="syncing && syncProgress" class="goods__sync-progress">
           <span class="goods__sync-text">
