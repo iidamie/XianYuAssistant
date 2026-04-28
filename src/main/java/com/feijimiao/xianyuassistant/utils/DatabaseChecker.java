@@ -50,7 +50,30 @@ public class DatabaseChecker {
             }
         } catch (Exception e) {
             log.warn("检查自动发货配置表数据时出现异常: {}", e.getMessage());
-            // 不打印完整堆栈,避免日志过于冗长
+        }
+    }
+
+    @PostConstruct
+    public void addAutoDeliveryImageUrlColumn() {
+        try {
+            String checkTableSql = "SELECT name FROM sqlite_master WHERE type='table' AND name='xianyu_goods_auto_delivery_config'";
+            List<Map<String, Object>> tableExists = jdbcTemplate.queryForList(checkTableSql);
+
+            if (tableExists.isEmpty()) {
+                return;
+            }
+
+            String checkColumnSql = "PRAGMA table_info(xianyu_goods_auto_delivery_config)";
+            List<Map<String, Object>> columns = jdbcTemplate.queryForList(checkColumnSql);
+            boolean hasImageUrl = columns.stream()
+                    .anyMatch(col -> "auto_delivery_image_url".equals(col.get("name")));
+
+            if (!hasImageUrl) {
+                jdbcTemplate.execute("ALTER TABLE xianyu_goods_auto_delivery_config ADD COLUMN auto_delivery_image_url TEXT");
+                log.info("已为xianyu_goods_auto_delivery_config表添加auto_delivery_image_url列");
+            }
+        } catch (Exception e) {
+            log.warn("添加auto_delivery_image_url列时出现异常: {}", e.getMessage());
         }
     }
 }

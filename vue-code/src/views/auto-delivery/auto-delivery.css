@@ -772,6 +772,23 @@
   color: var(--d-text-tertiary);
 }
 
+/* --- Image Section --- */
+.ad__image-section {
+  margin-top: 16px;
+}
+
+.ad__image-section-title {
+  font-size: 13px;
+  color: var(--d-text-secondary);
+  margin-bottom: 4px;
+}
+
+.ad__image-section-hint {
+  font-size: 12px;
+  color: var(--d-text-tertiary);
+  margin-bottom: 8px;
+}
+
 /* --- Save Row --- */
 .ad__save-row {
   display: flex;

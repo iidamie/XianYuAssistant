@@ -795,6 +795,32 @@ public class WebSocketServiceImpl implements WebSocketService {
             return false;
         }
     }
+    
+    @Override
+    public boolean sendImageMessage(Long accountId, String cid, String toId, String imageUrl, int width, int height) {
+        try {
+            log.info("发送图片消息: accountId={}, cid={}, toId={}, url={}, size={}x{}", 
+                    accountId, cid, toId, imageUrl, width, height);
+            
+            XianyuWebSocketClient client = webSocketClients.get(accountId);
+            if (client == null) {
+                log.error("WebSocket客户端不存在: accountId={}", accountId);
+                return false;
+            }
+            
+            if (!client.isConnected()) {
+                log.error("WebSocket未连接: accountId={}", accountId);
+                return false;
+            }
+            
+            client.sendImageMessage(cid, toId, imageUrl, width, height);
+            return true;
+            
+        } catch (Exception e) {
+            log.error("发送图片消息失败: accountId={}, cid={}, toId={}", accountId, cid, toId, e);
+            return false;
+        }
+    }
 
     /**
      * 应用关闭时清理资源

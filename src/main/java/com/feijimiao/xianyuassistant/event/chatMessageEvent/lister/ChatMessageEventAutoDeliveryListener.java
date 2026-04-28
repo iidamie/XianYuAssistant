@@ -260,6 +260,26 @@ public class ChatMessageEventAutoDeliveryListener {
             String cid = sId.replace("@goofish", "");
             String toId = cid;
             
+            String imageUrlStr = deliveryConfig.getAutoDeliveryImageUrl();
+            if (imageUrlStr != null && !imageUrlStr.trim().isEmpty()) {
+                String[] imageUrls = imageUrlStr.split(",");
+                for (int i = 0; i < imageUrls.length; i++) {
+                    String url = imageUrls[i].trim();
+                    if (!url.isEmpty()) {
+                        HumanLikeDelayUtils.thinkingDelay();
+                        boolean imgSuccess = webSocketService.sendImageMessage(accountId, cid, toId, url, 800, 800);
+                        if (imgSuccess) {
+                            log.info("【账号{}】自动发货图片[{}/{}]发送成功: xyGoodsId={}", accountId, i + 1, imageUrls.length, xyGoodsId);
+                            sentMessageSaveService.saveManualImageReply(accountId, cid, toId, url, xyGoodsId);
+                        } else {
+                            log.warn("【账号{}】自动发货图片[{}/{}]发送失败: xyGoodsId={}", accountId, i + 1, imageUrls.length, xyGoodsId);
+                        }
+                    }
+                }
+            }
+            
+            log.info("【账号{}】准备发送发货文本: content长度={}, deliveryMode={}", accountId, content != null ? content.length() : 0, deliveryMode);
+            
             boolean success = webSocketService.sendMessage(accountId, cid, toId, content);
             
             if (success) {

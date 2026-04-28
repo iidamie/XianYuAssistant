@@ -17,6 +17,7 @@ import IconPackage from '@/components/icons/IconPackage.vue'
 import IconCopy from '@/components/icons/IconCopy.vue'
 
 import GoodsDetailDialog from '../goods/components/GoodsDetailDialog.vue'
+import MultiImageUploader from '@/components/MultiImageUploader.vue'
 
 const {
   saving,
@@ -317,6 +318,16 @@ const {
                 <span class="ad__textarea-count">{{ configForm.autoDeliveryContent.length }} / 1000</span>
               </div>
 
+              <div class="ad__image-section">
+                <div class="ad__image-section-title">发货图片</div>
+                <div class="ad__image-section-hint">可选，买家下单后先发送图片再发送文本</div>
+                <MultiImageUploader
+                  v-if="selectedAccountId"
+                  :account-id="selectedAccountId"
+                  v-model="configForm.autoDeliveryImageUrl"
+                />
+              </div>
+
               <div class="ad__save-row">
                 <button
                   class="btn btn--primary"
@@ -418,6 +429,16 @@ const {
                   type="textarea"
                   :rows="3"
                   placeholder="可选，填写后发货时将用卡密替换{kmKey}发送，不填则直接发送卡密内容。例：您的卡密为：{kmKey}，请妥善保管"
+                />
+              </div>
+
+              <div class="ad__image-section">
+                <div class="ad__image-section-title">发货图片</div>
+                <div class="ad__image-section-hint">可选，买家下单后先发送图片再发送卡密</div>
+                <MultiImageUploader
+                  v-if="selectedAccountId"
+                  :account-id="selectedAccountId"
+                  v-model="configForm.autoDeliveryImageUrl"
                 />
               </div>
 

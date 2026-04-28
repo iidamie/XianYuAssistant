@@ -54,6 +54,11 @@ public class XianyuGoodsAutoDeliveryConfig {
     private String kamiDeliveryTemplate;
     
     /**
+     * 自动发货图片URL
+     */
+    private String autoDeliveryImageUrl;
+
+    /**
      * 自动确认发货开关：0-关闭，1-开启
      */
     private Integer autoConfirmShipment;

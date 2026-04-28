@@ -235,6 +235,67 @@ public class WebSocketController {
             return ResultObject.failed("发送消息失败: " + e.getMessage());
         }
     }
+    
+    /**
+     * 发送图片消息
+     */
+    @PostMapping("/sendImageMessage")
+    public ResultObject<String> sendImageMessage(@RequestBody SendImageMessageReqDTO reqDTO) {
+        try {
+            log.info("发送图片消息请求: xianyuAccountId={}, cid={}, toId={}, imageUrl={}", 
+                    reqDTO.getXianyuAccountId(), reqDTO.getCid(), reqDTO.getToId(), reqDTO.getImageUrl());
+            
+            // 参数校验
+            if (reqDTO.getXianyuAccountId() == null) {
+                return ResultObject.failed("账号ID不能为空");
+            }
+            if (reqDTO.getCid() == null || reqDTO.getCid().isEmpty()) {
+                return ResultObject.failed("会话ID(cid)不能为空");
+            }
+            if (reqDTO.getToId() == null || reqDTO.getToId().isEmpty()) {
+                return ResultObject.failed("接收方ID(toId)不能为空");
+            }
+            if (reqDTO.getImageUrl() == null || reqDTO.getImageUrl().isEmpty()) {
+                return ResultObject.failed("图片URL不能为空");
+            }
+            
+            // 检查WebSocket连接状态
+            if (!webSocketService.isConnected(reqDTO.getXianyuAccountId())) {
+                return ResultObject.failed("WebSocket未连接，请先启动连接");
+            }
+            
+            // 获取图片尺寸，默认800x600
+            int width = reqDTO.getWidth() != null && reqDTO.getWidth() > 0 ? reqDTO.getWidth() : 800;
+            int height = reqDTO.getHeight() != null && reqDTO.getHeight() > 0 ? reqDTO.getHeight() : 600;
+            
+            // 发送图片消息
+            boolean success = webSocketService.sendImageMessage(
+                    reqDTO.getXianyuAccountId(),
+                    reqDTO.getCid(),
+                    reqDTO.getToId(),
+                    reqDTO.getImageUrl(),
+                    width,
+                    height
+            );
+            
+            if (success) {
+                sentMessageSaveService.saveManualImageReply(
+                        reqDTO.getXianyuAccountId(),
+                        reqDTO.getCid(),
+                        reqDTO.getToId(),
+                        reqDTO.getImageUrl(),
+                        reqDTO.getXyGoodsId()
+                );
+                return ResultObject.success("图片消息发送成功");
+            } else {
+                return ResultObject.failed("图片消息发送失败");
+            }
+            
+        } catch (Exception e) {
+            log.error("发送图片消息失败", e);
+            return ResultObject.failed("发送图片消息失败: " + e.getMessage());
+        }
+    }
 
     /**
      * 检查WebSocket连接状态
@@ -654,6 +715,20 @@ public class WebSocketController {
         private String toId;           // 接收方用户ID（不带@goofish后缀）
         private String text;           // 消息文本内容
         private String xyGoodsId;      // 闲鱼商品ID
+    }
+    
+    /**
+     * 发送图片消息请求DTO
+     */
+    @Data
+    public static class SendImageMessageReqDTO {
+        private Long xianyuAccountId;  // 账号ID
+        private String cid;            // 会话ID（不带@goofish后缀）
+        private String toId;           // 接收方用户ID（不带@goofish后缀）
+        private String imageUrl;       // 图片URL
+        private Integer width;         // 图片宽度（可选，默认800）
+        private Integer height;        // 图片高度（可选，默认600）
+        private String xyGoodsId;      // 闲鱼商品ID（可选）
     }
     
     /**

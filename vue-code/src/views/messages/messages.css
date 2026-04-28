@@ -555,6 +555,10 @@
   color: var(--d-text-tertiary);
 }
 
+.messages__reply-image {
+  margin-top: var(--d-space-2);
+}
+
 .messages__dialog-footer {
   display: flex;
   justify-content: flex-end;

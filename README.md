@@ -7,9 +7,9 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen.svg)
 ![Vue](https://img.shields.io/badge/Vue-3.5-green.svg)
 
-一个功能强大的闲鱼店铺自动化管理工具，支持自动发货、自动回复、AI智能客服、消息管理等功能。
+一个功能强大的闲鱼店铺自动化管理工具，支持自动发货、自动回复、消息管理等功能。
 
-[功能特性](#功能特性) • [部署方式](#部署方式) • [使用指南](#使用指南) • [截图展示](#截图展示) • [技术栈](#技术栈) • [常见问题](#常见问题)
+[功能特性](#功能特性) • [部署方式](#部署方式) • [使用指南](#使用指南) • [技术栈](#技术栈) • [常见问题](#常见问题)
 
 </div>
 
@@ -37,9 +37,8 @@
 
 <div align="center">
   <img src="docs/images/2.png" alt="自动发货配置" width="800"/>
-  <p><i>自动发货 -  配置发货内容与规则</i></p>
+  <p><i>自动发货 - 配置发货内容与规则</i></p>
 </div>
-
 
 ### 闲鱼账号管理
 
@@ -67,48 +66,58 @@
   <img src="docs/images/5.png" alt="自动回复配置" width="800"/>
   <p><i>自动回复 - 商品知识库配置</i></p>
 </div>
+
 ---
 
 ## 📋 功能特性
 
-### 核心功能
+### 🎯 核心功能
 
-- 🔐 **多账号管理** - 支持同时管理多个闲鱼账号，轻松切换
-- 🔗 **WebSocket连接** - 实时监听闲鱼消息，及时响应买家
-- 🚀 **自动发货** - 买家付款后自动发送发货信息，节省时间
-- 💬 **自动回复** - 智能匹配关键词，自动回复买家消息
-- 🤖 **AI智能客服** - 集成通义千问大模型 + RAG知识库，智能回复买家
-- 📦 **商品管理** - 同步商品信息，统一管理在售商品
-- 📋 **订单管理** - 查看订单列表，支持一键确认发货
-- 💌 **消息管理** - 查看聊天记录，支持快速回复
+| 功能 | 说明 |
+|------|------|
+| 📊 **数据面板** | 实时统计账号、商品、订单、消息等核心数据 |
+| 👤 **闲鱼账号** | 多账号管理，支持扫码登录，统一管理Cookie和Token |
+| 🔗 **连接管理** | WebSocket连接管理，实时监听闲鱼消息，支持Token自动刷新 |
+| 📦 **商品管理** | 同步闲鱼商品，配置自动发货、自动回复等功能 |
+| 💬 **消息管理** | 查看聊天记录，支持快速回复、发送图片、消息筛选 |
 
-### 高级功能
+### 🤖 自动化功能
+
+| 功能 | 说明 |
+|------|------|
+| 🔑 **卡密仓库** | 管理虚拟商品卡密，支持批量导入、自动发货 |
+| 🤖 **自动发货** | 买家付款后自动发送发货信息，支持文本、链接、卡密等 |
+| 📋 **发货记录** | 查看自动发货历史记录，支持手动重发 |
+| 💭 **自动回复** | 智能匹配关键词自动回复，支持精确/模糊/正则匹配 |
+
+### ⚙️ 系统功能
+
+| 功能 | 说明 |
+|------|------|
+| 📜 **操作日志** | 详细记录所有操作，方便追踪和排查 |
+| ⚙️ **系统设置** | 配置AI模型、滑块验证、自定义参数等 |
+
+### ✨ 高级特性
 
 - 🔄 **Token自动刷新** - 智能维护登录状态，随机间隔避免检测
-- 📊 **数据统计** - 实时查看账号、商品、订单等数据统计
-- 📜 **操作日志** - 详细记录所有操作，方便追踪和排查
-- 🎯 **消息过滤** - 支持按商品、账号筛选消息
 - 🔐 **滑块验证处理** - 智能检测验证需求，提供详细操作指引
+- 🤖 **AI智能客服** - 集成通义千问大模型，智能回复买家问题
 - 🧠 **RAG知识库** - 按商品维度构建向量知识库，提升AI回复准确性
-- 🔌 **自定义发货** - 提供API接入指南，支持外部系统对接发货流程
+- 🔌 **自定义发货API** - 支持外部系统对接发货流程
 - 📱 **响应式设计** - 完美适配桌面、平板、手机三种设备模式
 
 ---
 
 ## 🚀 部署方式
 
-### Docker 部署（推荐）
-
-使用 Docker 一键部署，所有配置已数据库化，无需配置文件。
+### 方式一：Docker部署（推荐）
 
 #### 环境要求
+- Docker 20.10+
 
-- **Docker**: 20.10+
-
-#### 快速启动
+#### 一键部署脚本
 
 **Linux/Mac**:
-
 ```bash
 docker run -d \
   --name xianyu-assistant \
@@ -120,7 +129,6 @@ docker run -d \
 ```
 
 **Windows PowerShell**:
-
 ```powershell
 docker run -d `
   --name xianyu-assistant `
@@ -131,27 +139,9 @@ docker run -d `
   iamlzy/xianyuassistant:latest
 ```
 
-> **数据目录说明**:
-> - `dbdata/` - 数据库数据目录，包含：
->   - `xianyu_assistant.db` - SQLite数据库（账号、商品、订单、配置等）
->   - `vectorstore.json` - 向量数据库（AI知识库向量数据）
-> - `logs/` - 应用日志目录
->
-> ⚠️ **重要警告**:
-> - **容器内路径（`/app/dbdata` 和 `/app/logs`）不能修改**，这是应用固定的数据存储路径
-> - **物理机路径可以自定义**，但一旦设置后不要随意更改，否则会导致数据丢失
-> - **升级版本时请使用相同的物理机路径**，确保数据能够正确迁移
-> - **建议定期备份 `dbdata/` 目录**，防止意外数据丢失
-
-启动后访问: `http://localhost:12400`
-
 #### 自定义配置
 
 通过环境变量自定义配置：
-
-> ⚠️ **数据路径警告**: 修改物理机路径前请先备份 `dbdata/` 目录，避免数据丢失！
-
-**Linux/Mac**:
 
 ```bash
 docker run -d \
@@ -164,30 +154,25 @@ docker run -d \
   iamlzy/xianyuassistant:latest
 ```
 
-**Windows PowerShell**:
-
-```powershell
-docker run -d `
-  --name xianyu-assistant `
-  -p 12400:12400 `
-  -e JAVA_OPTS="-Xms256m -Xmx512m" `
-  -v D:\your\path\dbdata:/app/dbdata `
-  -v D:\your\path\logs:/app/logs `
-  --restart unless-stopped `
-  iamlzy/xianyuassistant:latest
-```
-
-#### 配置项说明
+**配置项说明**:
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| 端口映射 | `12400:12400` | 应用服务端口（物理机端口:容器端口） |
-| 数据卷 `/app/dbdata` | - | 数据库数据目录，包含：<br>- `xianyu_assistant.db`：SQLite数据库（账号、商品、订单、配置等）<br>- `vectorstore.json`：向量数据库（AI知识库向量数据） |
-| 数据卷 `/app/logs` | - | 应用日志目录 |
-| 环境变量 `JAVA_OPTS` | `-Xms256m -Xmx512m` | JVM 内存参数 |
-| 环境变量 `SERVER_PORT` | `12400` | Spring Boot 服务端口（容器内部） |
+| `-p 12400:12400` | 12400:12400 | 端口映射（物理机端口:容器端口） |
+| `-v /app/dbdata` | - | 数据库数据目录（SQLite + 向量数据库） |
+| `-v /app/logs` | - | 应用日志目录 |
+| `-e JAVA_OPTS` | -Xms256m -Xmx512m | JVM内存参数 |
+| `-e SERVER_PORT` | 12400 | Spring Boot服务端口（容器内部） |
 
-> **提示**: 所有业务配置（如阿里云 API Key、AI 模型等）已数据库化，可在系统设置页面直接配置，无需修改环境变量。
+> **数据目录说明**:
+> - `dbdata/xianyu_assistant.db` - SQLite数据库（账号、商品、订单、配置等）
+> - `dbdata/vectorstore.json` - 向量数据库（AI知识库向量数据）
+> - `logs/xianyu-assistant.log` - 应用运行日志
+
+> ⚠️ **重要提示**:
+> - 容器内路径（`/app/dbdata` 和 `/app/logs`）不能修改
+> - 物理机路径一旦设置不要随意更改，否则会导致数据丢失
+> - 升级版本时请使用相同的物理机路径，确保数据正确迁移
 
 #### 常用命令
 
@@ -209,36 +194,52 @@ docker pull iamlzy/xianyuassistant:latest
 docker stop xianyu-assistant
 docker rm xianyu-assistant
 # 然后重新执行 docker run 命令
-
-# 进入容器
-docker exec -it xianyu-assistant sh
 ```
 
-#### 服务器部署示例
+#### 访问系统
+
+部署成功后，在浏览器中访问：`http://localhost:12400` 或 `http://你的服务器IP:12400`
+
+---
+
+### 方式二：JAR包部署
+
+#### 环境要求
+- Java 21+
+- SQLite 3.42.0+
+
+#### 构建JAR包
 
 ```bash
-# 1. SSH 连接服务器
-ssh username@your-server-ip
+# 克隆项目
+git clone https://github.com/IAMLZY2018/XianYuAssistant.git
+cd XianYuAssistant
 
-# 2. 安装 Docker（如未安装）
-curl -fsSL https://get.docker.com | sh
-sudo systemctl start docker && sudo systemctl enable docker
+# 构建前端
+cd vue-code
+npm install
+npm run build
 
-# 3. 创建数据目录
-mkdir -p /opt/xianyu-assistant/data
-
-# 4. 启动服务
-docker run -d \
-  --name xianyu-assistant \
-  -p 12400:12400 \
-  -v /opt/xianyu-assistant/data/dbdata:/app/dbdata \
-  -v /opt/xianyu-assistant/data/logs:/app/logs \
-  --restart unless-stopped \
-  iamlzy/xianyuassistant:latest
-
-# 5. 访问应用
-# 浏览器打开 http://your-server-ip:12400
+# 构建后端
+cd ..
+./mvnw clean package -DskipTests
 ```
+
+#### 启动服务
+
+```bash
+java -jar target/XianYuAssistant-1.0.10.jar
+```
+
+#### 自定义配置
+
+```bash
+java -Xms256m -Xmx512m -Dserver.port=12400 -jar target/XianYuAssistant-1.0.10.jar
+```
+
+#### 访问系统
+
+部署成功后，在浏览器中访问：`http://localhost:12400` 或 `http://你的服务器IP:12400`
 
 ---
 
@@ -294,18 +295,6 @@ docker run -d \
 6. 可选：开启"自动确认发货"
 7. 保存配置
 
-#### 自定义发货
-
-支持通过API接口对接外部系统实现自定义发货逻辑。
-
-**使用步骤**:
-1. 进入"自动发货"页面
-2. 选择商品
-3. 切换到"自定义发货"标签页
-4. 查看API接入指南，包含接口地址、请求参数、参数说明
-5. 点击"复制"按钮获取接口和参数信息
-6. 在外部系统中调用API完成发货
-
 #### 自动回复
 
 智能匹配买家消息中的关键词，自动发送预设的回复内容。
@@ -354,7 +343,6 @@ docker run -d \
 | Playwright | 1.40.0 | 浏览器自动化(扫码登录) |
 | ZXing | 3.5.3 | 二维码生成 |
 | Spring AI | 1.1.4 | AI集成(通义千问+RAG) |
-| Lombok | - | 简化代码 |
 
 ### 前端
 
@@ -377,12 +365,6 @@ docker run -d \
 | 桌面模式 | > 1024px | 固定侧边栏 | 完整功能展示，侧边栏常驻显示 |
 | 平板模式 | 768px - 1024px | 可折叠侧边栏 | 自动折叠侧边栏，点击按钮展开/收起 |
 | 手机模式 | < 768px | 抽屉式菜单 | 顶部导航栏 + 全屏抽屉菜单 |
-
-**响应式特性**：
-- 自动检测屏幕尺寸并切换布局模式
-- 平板模式下侧边栏默认折叠，节省屏幕空间
-- 平滑的过渡动画效果
-- 选择菜单项后自动收起侧边栏（平板模式）
 
 ---
 
@@ -411,54 +393,42 @@ docker run -d \
 
 频繁操作容易触发闲鱼的人机验证，导致账号暂时不可用。建议保持连接稳定。
 
-### 6. 如何使用自定义发货？
-
-切换到"自定义发货"标签页，查看API接入指南，复制接口地址和请求参数，在外部系统中调用 `/api/order/list` 获取待发货订单，再调用 `/api/order/confirmShipment` 确认发货。
-
-### 7. AI智能客服如何配置？
+### 6. AI智能客服如何配置？
 
 1. 在系统设置页面配置阿里云 API Key
 2. 在AI对话页面上传商品知识库数据
 3. 系统将自动使用RAG检索相关知识并生成智能回复
 
-### 8. Docker部署数据存在哪里？
+### 7. Docker部署数据存在哪里？
 
-默认存储在容器的 `/app/dbdata` 和 `/app/logs` 目录，通过数据卷映射到物理机：
-
-**数据目录结构**:
-```
-data/
-├── dbdata/                          # 数据库数据目录
-│   ├── xianyu_assistant.db          # SQLite数据库
-│   │   - 账号信息
-│   │   - 商品数据
-│   │   - 订单记录
-│   │   - 系统配置
-│   │   - 自动化规则
-│   │   - 操作日志
-│   └── vectorstore.json             # 向量数据库
-│       - AI知识库向量数据
-│       - RAG检索索引
-└── logs/                            # 应用日志目录
-    └── xianyu-assistant.log         # 应用运行日志
-```
+默认存储在容器的 `/app/dbdata` 和 `/app/logs` 目录，通过数据卷映射到物理机。
 
 **重要提示**:
-- ⚠️ **容器内路径（`/app/dbdata` 和 `/app/logs`）不能修改**
-- ⚠️ **物理机路径一旦设置不要随意更改**，否则会导致数据丢失
-- ⚠️ **升级版本时请使用相同的物理机路径**，确保数据能够正确迁移
-- 定期备份 `dbdata/` 目录，避免数据丢失
-- 向量数据库文件 `vectorstore.json` 会随着知识库数据增加而变大
-- 日志文件会持续增长，建议定期清理或配置日志轮转
+- ⚠️ 容器内路径（`/app/dbdata` 和 `/app/logs`）不能修改
+- ⚠️ 物理机路径一旦设置不要随意更改，否则会导致数据丢失
+- ⚠️ 升级版本时请使用相同的物理机路径，确保数据正确迁移
 
-### 9. 如何更新到最新版本？
+---
 
-```bash
-docker pull iamlzy/xianyuassistant:latest
-docker stop xianyu-assistant
-docker rm xianyu-assistant
-# 然后重新执行 docker run 命令
-```
+## 📝 更新日志
+
+### v1.0.10 (2026-04-28)
+
+**🎨 UI优化**
+- 优化连接详情页按钮样式，符合iOS 18设计规范
+- 按钮默认可见，使用浅灰背景色，无需悬停才显示
+- 启动按钮：绿色 #34c759，断开按钮：红色 #ff3b30，扫码按钮：蓝色 #007aff
+- 统一圆角为8px，字重600，移除边框设计
+- 优化hover效果，移除@media限制，所有设备均支持悬停反馈
+
+**📱 手机端优化**
+- 修复连接详情页手机端按钮布局问题
+- 按钮横向排列，均分宽度，自适应容器
+- 精简手机端按钮文字：启动、断开、扫码、刷新
+- 修复启动/断开连接按钮不可见问题，使用严格布尔值判断
+- 手机端补充刷新按钮，与桌面端保持一致
+- 隐藏滚动条但不影响滚动功能
+- 优化按钮间距和padding，确保一行优雅显示
 
 ---
 
@@ -470,18 +440,10 @@ https://github.com/zhinianboke/xianyu-auto-reply
 
 欢迎提交Issue和Pull Request！
 
-**仓库地址:**
+**仓库地址**:
 
 - 🇨🇳 Gitee: https://gitee.com/lzy2018cn/xian-yu-assistant
 - 🌍 GitHub: https://github.com/IAMLZY2018/XianYuAssistant
-
-**贡献步骤:**
-
-1. Fork本项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 提交Pull Request
 
 ---
 
@@ -494,15 +456,6 @@ https://github.com/zhinianboke/xianyu-auto-reply
 ## ⚠️ 免责声明
 
 本项目仅供学习交流使用，请勿用于商业用途。使用本工具产生的任何后果由使用者自行承担。
-
----
-
-## 📧 联系方式
-
-如有问题或建议，欢迎通过以下方式联系：
-
-- 提交 [Issue](https://github.com/IAMLZY2018/XianYuAssistant/issues)
-- **联系作者:** https://www.feijimiao.cn/contact
 
 ---
 

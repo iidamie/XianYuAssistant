@@ -13,6 +13,7 @@ import IconImage from '@/components/icons/IconImage.vue'
 
 import GoodsSidebar from './components/GoodsSidebar.vue'
 import MessageList from './components/MessageList.vue'
+import MultiImageUploader from '@/components/MultiImageUploader.vue'
 
 const {
   loading,
@@ -33,9 +34,11 @@ const {
   quickReplyMessage,
   quickReplySending,
   currentReplyMessage,
+  quickReplyImage,
   isMobile,
   mobileView,
   selectedGoodsForMobile,
+  getCurrentAccountUnb,
   loadAccounts,
   loadMessages,
   loadGoodsList,
@@ -188,6 +191,9 @@ const checkScreenSize = () => {
             <MessageList
               :message-list="messageList"
               :loading="loading"
+              :xianyu-account-id="selectedAccountId || undefined"
+              :goods-list="goodsList"
+              :current-account-unb="getCurrentAccountUnb"
               @reply="openQuickReply"
             />
           </div>
@@ -336,6 +342,9 @@ const checkScreenSize = () => {
           <MessageList
             :message-list="messageList"
             :loading="loading"
+            :xianyu-account-id="selectedAccountId || undefined"
+            :goods-list="goodsList"
+            :current-account-unb="getCurrentAccountUnb"
             @reply="openQuickReply"
           />
         </div>
@@ -394,6 +403,12 @@ const checkScreenSize = () => {
               placeholder="请输入回复内容..."
               maxlength="500"
             ></textarea>
+            <div class="messages__reply-image">
+              <MultiImageUploader
+                :account-id="selectedAccountId || 0"
+                v-model="quickReplyImage"
+              />
+            </div>
           </div>
           <div class="messages__dialog-footer">
             <button class="btn btn--secondary" @click="quickReplyVisible = false">取消</button>

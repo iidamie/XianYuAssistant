@@ -67,6 +67,7 @@ export function useAutoDelivery() {
     autoDeliveryContent: '',
     kamiConfigIds: '',
     kamiDeliveryTemplate: '',
+    autoDeliveryImageUrl: '',
     autoConfirmShipment: 0
   })
 
@@ -335,12 +336,14 @@ export function useAutoDelivery() {
           configForm.value.autoDeliveryContent = response.data.autoDeliveryContent || ''
           configForm.value.kamiConfigIds = response.data.kamiConfigIds || ''
           configForm.value.kamiDeliveryTemplate = response.data.kamiDeliveryTemplate || ''
+          configForm.value.autoDeliveryImageUrl = response.data.autoDeliveryImageUrl || ''
           configForm.value.autoConfirmShipment = response.data.autoConfirmShipment || 0
         } else {
           configForm.value.deliveryMode = 1
           configForm.value.autoDeliveryContent = ''
           configForm.value.kamiConfigIds = ''
           configForm.value.kamiDeliveryTemplate = ''
+          configForm.value.autoDeliveryImageUrl = ''
           configForm.value.autoConfirmShipment = 0
         }
       } else {
@@ -378,6 +381,7 @@ export function useAutoDelivery() {
         autoDeliveryContent: configForm.value.autoDeliveryContent.trim(),
         kamiConfigIds: configForm.value.kamiConfigIds,
         kamiDeliveryTemplate: configForm.value.kamiDeliveryTemplate.trim(),
+        autoDeliveryImageUrl: configForm.value.autoDeliveryImageUrl.trim(),
         autoConfirmShipment: configForm.value.autoConfirmShipment
       }
 
