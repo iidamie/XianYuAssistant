@@ -274,17 +274,34 @@ public class AutoReplyServiceImpl implements AutoReplyService {
             log.info("【账号{}】调用AI服务生成回复(带命中资料): xyGoodsId={}, message={}, useContext={}", 
                     accountId, xyGoodsId, buyerMessage, contextMessages != null);
             
+            String fixedMaterial = null;
+            String goodsDetail = null;
+            
+            XianyuGoodsConfig goodsConfig = goodsConfigMapper.selectByAccountAndGoodsId(accountId, xyGoodsId);
+            if (goodsConfig != null) {
+                fixedMaterial = goodsConfig.getFixedMaterial();
+            }
+            
+            XianyuGoodsInfo goodsInfo = goodsInfoMapper.selectOne(
+                new LambdaQueryWrapper<XianyuGoodsInfo>().eq(XianyuGoodsInfo::getXyGoodId, xyGoodsId)
+            );
+            if (goodsInfo != null) {
+                goodsDetail = goodsInfo.getDetailInfo();
+            }
+            
             RAGReplyResult result;
             if (contextMessages != null && !contextMessages.isEmpty()) {
-                result = aiService.chatByRAGWithDetails(buyerMessage, xyGoodsId, contextMessages);
+                result = aiService.chatByRAGWithFixedMaterial(buyerMessage, xyGoodsId, contextMessages, fixedMaterial, goodsDetail);
             } else {
-                result = aiService.chatByRAGWithDetails(buyerMessage, xyGoodsId);
+                result = aiService.chatByRAGWithFixedMaterial(buyerMessage, xyGoodsId, fixedMaterial, goodsDetail);
             }
             
             if (result != null && result.getReplyContent() != null) {
-                log.info("【账号{}】响应完成，内容长度: {}, RAG命中数: {}", 
+                log.info("【账号{}】响应完成，内容长度: {}, RAG命中数: {}, fixedMaterial={}, goodsDetail={}", 
                         accountId, result.getReplyContent().length(), 
-                        result.getHitDetails() != null ? result.getHitDetails().size() : 0);
+                        result.getHitDetails() != null ? result.getHitDetails().size() : 0,
+                        fixedMaterial != null && !fixedMaterial.isEmpty(),
+                        goodsDetail != null && !goodsDetail.isEmpty());
             }
             
             return result;

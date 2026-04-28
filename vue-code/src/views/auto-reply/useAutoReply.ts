@@ -2,7 +2,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getAccountList } from '@/api/account'
 import { getGoodsList, updateAutoReplyStatus, getAutoReplyConfig, updateAutoReplyConfig, getAutoReplyRecords } from '@/api/goods'
-import { chatWithAI, putNewDataToRAG, queryRAGData, deleteRAGData } from '@/api/ai'
+import { chatWithAI, putNewDataToRAG, queryRAGData, deleteRAGData, saveFixedMaterial, getFixedMaterial, syncDetailToFixedMaterial } from '@/api/ai'
 import type { RAGDataItem } from '@/api/ai'
 import type { AutoReplyRecord } from '@/api/goods'
 import { showSuccess, showError, showInfo } from '@/utils'
@@ -43,6 +43,12 @@ export function useAutoReply() {
   // Upload data form
   const dataContent = ref('')
   const uploading = ref(false)
+
+  // Fixed material
+  const fixedMaterial = ref('')
+  const fixedMaterialSaving = ref(false)
+  const fixedMaterialSyncing = ref(false)
+  const fixedMaterialExpanded = ref(true)
 
   // Query existing knowledge data
   const dataList = ref<RAGDataItem[]>([])
@@ -245,6 +251,80 @@ export function useAutoReply() {
 
     // 加载自动回复配置
     loadConfig()
+    // 加载固定资料
+    loadFixedMaterial()
+  }
+
+  // Load fixed material
+  const loadFixedMaterial = async () => {
+    if (!selectedGoods.value || !selectedAccountId.value) return
+
+    try {
+      const response = await getFixedMaterial({
+        accountId: selectedAccountId.value,
+        goodsId: selectedGoods.value.item.xyGoodId
+      })
+      const data = await response.json()
+      if (data.code === 0 || data.code === 200) {
+        fixedMaterial.value = data.data?.fixedMaterial || ''
+        fixedMaterialExpanded.value = !fixedMaterial.value
+      }
+    } catch (error: any) {
+      console.error('加载固定资料失败:', error)
+    }
+  }
+
+  // Save fixed material
+  const handleSaveFixedMaterial = async () => {
+    if (!selectedGoods.value || !selectedAccountId.value) return
+
+    fixedMaterialSaving.value = true
+    try {
+      const response = await saveFixedMaterial({
+        accountId: selectedAccountId.value,
+        goodsId: selectedGoods.value.item.xyGoodId,
+        fixedMaterial: fixedMaterial.value
+      })
+      const data = await response.json()
+      if (data.code === 0 || data.code === 200) {
+        showSuccess('固定资料保存成功')
+      } else {
+        showError(data.msg || '保存失败')
+      }
+    } catch (error: any) {
+      showError('保存固定资料失败: ' + error.message)
+    } finally {
+      fixedMaterialSaving.value = false
+    }
+  }
+
+  // Sync detail to fixed material
+  const handleSyncDetailToFixedMaterial = async () => {
+    if (!selectedGoods.value || !selectedAccountId.value) return
+
+    fixedMaterialSyncing.value = true
+    try {
+      const response = await syncDetailToFixedMaterial({
+        accountId: selectedAccountId.value,
+        goodsId: selectedGoods.value.item.xyGoodId
+      })
+      const data = await response.json()
+      if (data.code === 0 || data.code === 200) {
+        showSuccess('商品详情已同步到固定资料')
+        await loadFixedMaterial()
+      } else {
+        showError(data.msg || '同步失败')
+      }
+    } catch (error: any) {
+      showError('同步商品详情失败: ' + error.message)
+    } finally {
+      fixedMaterialSyncing.value = false
+    }
+  }
+
+  // Toggle fixed material expanded
+  const toggleFixedMaterialExpanded = () => {
+    fixedMaterialExpanded.value = !fixedMaterialExpanded.value
   }
 
   // Load auto reply config
@@ -751,6 +831,10 @@ export function useAutoReply() {
     rightTab,
     dataContent,
     uploading,
+    fixedMaterial,
+    fixedMaterialSaving,
+    fixedMaterialSyncing,
+    fixedMaterialExpanded,
     dataList,
     dataLoading,
     dataVisible,
@@ -800,6 +884,9 @@ export function useAutoReply() {
     loadRecords,
     viewRecordDetail,
     handleRecordsPageChange,
-    parseTriggerContext
+    parseTriggerContext,
+    handleSaveFixedMaterial,
+    handleSyncDetailToFixedMaterial,
+    toggleFixedMaterialExpanded
   }
 }

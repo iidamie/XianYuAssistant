@@ -6,7 +6,10 @@ import com.feijimiao.xianyuassistant.controller.dto.ChatWithAIReqDTO;
 import com.feijimiao.xianyuassistant.controller.dto.DeleteRAGDataReqDTO;
 import com.feijimiao.xianyuassistant.controller.dto.PutNewDataToRAGReqDTO;
 import com.feijimiao.xianyuassistant.service.AIService;
+import com.feijimiao.xianyuassistant.service.GoodsInfoService;
 import com.feijimiao.xianyuassistant.service.bo.RAGDataRespBO;
+import com.feijimiao.xianyuassistant.mapper.XianyuGoodsConfigMapper;
+import com.feijimiao.xianyuassistant.entity.XianyuGoodsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +32,12 @@ public class AIChatController {
 
     @Autowired
     private DynamicAIChatClientManager dynamicAIChatClientManager;
+    
+    @Autowired
+    private GoodsInfoService goodsInfoService;
+    
+    @Autowired
+    private XianyuGoodsConfigMapper goodsConfigMapper;
 
     /**
      * AI对话（流式返回）
@@ -74,6 +83,53 @@ public class AIChatController {
     public ResultObject<?> deleteRAGData(@RequestBody DeleteRAGDataReqDTO req) {
         aiService.deleteRAGDataByDocumentId(req.getDocumentId());
         return ResultObject.success(null);
+    }
+
+    @PostMapping("/saveFixedMaterial")
+    public ResultObject<?> saveFixedMaterial(@RequestBody FixedMaterialReqDTO req) {
+        goodsConfigMapper.updateFixedMaterial(req.getAccountId(), req.getGoodsId(), req.getFixedMaterial());
+        return ResultObject.success(null);
+    }
+
+    @PostMapping("/getFixedMaterial")
+    public ResultObject<FixedMaterialRespDTO> getFixedMaterial(@RequestBody FixedMaterialReqDTO req) {
+        XianyuGoodsConfig config = goodsConfigMapper.selectByAccountAndGoodsId(req.getAccountId(), req.getGoodsId());
+        FixedMaterialRespDTO resp = new FixedMaterialRespDTO();
+        if (config != null) {
+            resp.setFixedMaterial(config.getFixedMaterial());
+        }
+        return ResultObject.success(resp);
+    }
+
+    @PostMapping("/syncDetailToFixedMaterial")
+    public ResultObject<?> syncDetailToFixedMaterial(@RequestBody FixedMaterialReqDTO req) {
+        String detailInfo = goodsInfoService.getDetailInfoByGoodsId(req.getGoodsId());
+        if (detailInfo != null && !detailInfo.isEmpty()) {
+            goodsConfigMapper.updateFixedMaterial(req.getAccountId(), req.getGoodsId(), detailInfo);
+            return ResultObject.success(null);
+        } else {
+            return ResultObject.failed("商品详情为空，无法同步");
+        }
+    }
+
+    public static class FixedMaterialReqDTO {
+        private Long accountId;
+        private String goodsId;
+        private String fixedMaterial;
+
+        public Long getAccountId() { return accountId; }
+        public void setAccountId(Long accountId) { this.accountId = accountId; }
+        public String getGoodsId() { return goodsId; }
+        public void setGoodsId(String goodsId) { this.goodsId = goodsId; }
+        public String getFixedMaterial() { return fixedMaterial; }
+        public void setFixedMaterial(String fixedMaterial) { this.fixedMaterial = fixedMaterial; }
+    }
+
+    public static class FixedMaterialRespDTO {
+        private String fixedMaterial;
+
+        public String getFixedMaterial() { return fixedMaterial; }
+        public void setFixedMaterial(String fixedMaterial) { this.fixedMaterial = fixedMaterial; }
     }
 
     /**

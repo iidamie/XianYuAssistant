@@ -89,3 +89,30 @@ export function getAIStatus(): Promise<Response> {
     body: JSON.stringify({})
   })
 }
+
+// 保存固定资料
+export function saveFixedMaterial(data: { accountId: number; goodsId: string; fixedMaterial: string }): Promise<Response> {
+  return fetch('/ai/saveFixedMaterial', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data)
+  })
+}
+
+// 获取固定资料
+export function getFixedMaterial(data: { accountId: number; goodsId: string }): Promise<Response> {
+  return fetch('/ai/getFixedMaterial', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data)
+  })
+}
+
+// 同步商品详情到固定资料
+export function syncDetailToFixedMaterial(data: { accountId: number; goodsId: string }): Promise<Response> {
+  return fetch('/ai/syncDetailToFixedMaterial', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data)
+  })
+}

@@ -44,6 +44,11 @@ public class XianyuGoodsConfig {
     private Integer xianyuAutoReplyContextOn;
     
     /**
+     * 固定资料（用于AI自动回复）
+     */
+    private String fixedMaterial;
+    
+    /**
      * 创建时间
      */
     private String createTime;

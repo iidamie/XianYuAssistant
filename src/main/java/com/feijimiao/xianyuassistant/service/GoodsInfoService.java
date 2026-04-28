@@ -93,6 +93,14 @@ public interface GoodsInfoService {
     boolean updateDetailInfo(String xyGoodId, String detailInfo);
     
     /**
+     * 根据商品ID获取商品详情信息
+     *
+     * @param xyGoodId 闲鱼商品ID
+     * @return 商品详情信息
+     */
+    String getDetailInfoByGoodsId(String xyGoodId);
+    
+    /**
      * 删除商品信息
      *
      * @param xianyuAccountId 闲鱼账号ID

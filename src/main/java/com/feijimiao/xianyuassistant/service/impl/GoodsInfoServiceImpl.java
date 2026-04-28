@@ -257,6 +257,14 @@ public class GoodsInfoServiceImpl implements GoodsInfoService {
     }
     
     @Override
+    public String getDetailInfoByGoodsId(String xyGoodId) {
+        LambdaQueryWrapper<XianyuGoodsInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(XianyuGoodsInfo::getXyGoodId, xyGoodId);
+        XianyuGoodsInfo goods = goodsInfoMapper.selectOne(queryWrapper);
+        return goods != null ? goods.getDetailInfo() : null;
+    }
+    
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteGoodsInfo(Long xianyuAccountId, String xyGoodId) {
         try {

@@ -17,6 +17,7 @@ import IconSearch from '@/components/icons/IconSearch.vue'
 import GoodsDetailDialog from '../goods/components/GoodsDetailDialog.vue'
 
 const {
+  // State
   saving,
   accounts,
   selectedAccountId,
@@ -30,6 +31,10 @@ const {
   rightTab,
   dataContent,
   uploading,
+  fixedMaterial,
+  fixedMaterialSaving,
+  fixedMaterialSyncing,
+  fixedMaterialExpanded,
   dataList,
   dataLoading,
   dataVisible,
@@ -52,6 +57,8 @@ const {
   recordDetailVisible,
   recordDetail,
   contextExpanded,
+
+  // Methods
   handleAccountChange,
   selectGoods,
   toggleAutoReply,
@@ -75,7 +82,10 @@ const {
   loadRecords,
   viewRecordDetail,
   handleRecordsPageChange,
-  parseTriggerContext
+  parseTriggerContext,
+  handleSaveFixedMaterial,
+  handleSyncDetailToFixedMaterial,
+  toggleFixedMaterialExpanded
 } = useAutoReply()
 </script>
 
@@ -318,6 +328,56 @@ const {
 
           <!-- ====== 知识资料视图 ====== -->
           <template v-if="rightTab === 'data'">
+            <!-- Fixed material section -->
+            <div class="ar__config-section">
+              <div class="ar__config-section-header" @click="toggleFixedMaterialExpanded">
+                <div class="ar__config-section-title-row">
+                  <IconChevronDown class="ar__config-section-chevron" :class="{ 'ar__config-section-chevron--collapsed': !fixedMaterialExpanded }" />
+                  <div class="ar__config-section-title">固定资料</div>
+                  <span v-if="fixedMaterial" class="ar__config-section-badge">已配置</span>
+                </div>
+                <button
+                  v-if="fixedMaterialExpanded"
+                  class="btn btn--ghost btn--sm"
+                  :class="{ 'btn--loading': fixedMaterialSyncing }"
+                  :disabled="fixedMaterialSyncing"
+                  @click.stop="handleSyncDetailToFixedMaterial"
+                >
+                  <IconSparkle />
+                  同步商品详情
+                </button>
+              </div>
+              
+              <div v-show="fixedMaterialExpanded" class="ar__config-section-body">
+                <div class="ar__toggle-hint" style="margin-bottom: 8px;">
+                  固定资料会每次AI回复时都带上，保存在本地数据库
+                </div>
+
+                <textarea
+                  v-model="fixedMaterial"
+                  class="ar__textarea"
+                  placeholder="请输入固定资料内容，如商品规格、注意事项等"
+                  maxlength="5000"
+                ></textarea>
+                <div class="ar__textarea-footer">
+                  <span class="ar__textarea-hint">固定资料随商品保存</span>
+                  <span class="ar__textarea-count">{{ fixedMaterial.length }} / 5000</span>
+                </div>
+
+                <div class="ar__save-row" style="margin-bottom: 16px;">
+                  <button
+                    class="btn btn--primary"
+                    :class="{ 'btn--loading': fixedMaterialSaving }"
+                    :disabled="fixedMaterialSaving"
+                    @click="handleSaveFixedMaterial"
+                  >
+                    <IconCheck />
+                    保存固定资料
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- Upload view -->
             <div v-if="!dataVisible" class="ar__config-section">
               <div class="ar__config-section-title">添加资料</div>
