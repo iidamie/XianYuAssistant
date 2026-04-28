@@ -480,3 +480,7 @@ https://github.com/zhinianboke/xianyu-auto-reply
 Made with ❤️
 
 </div>
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=IAMLZY2018/XianYuAssistant&type=Date)](https://star-history.com/#IAMLZY2018/XianYuAssistant)
